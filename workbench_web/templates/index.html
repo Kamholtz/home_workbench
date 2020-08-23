@@ -22,9 +22,9 @@
              const el = document.getElementById('chart');
              const dataPoints = [];
              const chart = new TimeChart(el, {
-                 series: [{ data: dataPoints, name: 'Real-time measurement streaming', color: 'darkblue' }],
+                 series: [{ data: dataPoints, name: 'Current (A)', color: 'darkblue' }],
                  realTime: true,
-                 xRange: { min: 0, max: 500 },
+                 xRange: { min: 0, max: 10 },
              });
              const ws = new WebSocket("ws://localhost:8000/ws");
              let x = 0;
