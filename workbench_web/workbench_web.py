@@ -1,8 +1,10 @@
 import asyncio
 import json
 import os
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, Request, WebSocket
+from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 
 from home_workbench.spd3303c import SPD3303C
@@ -35,5 +37,12 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         await asyncio.sleep(0.1)
         payload = next(measurements)
-        payload = {"current": ps.channel_1.current, "voltage": ps.channel_1.voltage}
+        now = datetime.now()
+        now_rounded = now - timedelta(microseconds=now.microsecond)
+        datetime_encoded = jsonable_encoder(now_rounded)
+        payload = {
+            "time": datetime_encoded,
+            "current": ps.channel_1.current,
+            "voltage": ps.channel_1.voltage,
+        }
         await websocket.send_json(payload)

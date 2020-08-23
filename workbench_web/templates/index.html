@@ -116,7 +116,7 @@
             const measurement = JSON.parse(event.data);
             x += 1;
 
-            var time = new Date()
+            var time = new Date(measurement.time)
             chart.data.datasets[0].data.push({
                 x: time,
                 y: measurement.voltage
