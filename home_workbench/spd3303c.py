@@ -1,91 +1,72 @@
 # scpi controller
-import time
+from enum import Enum
 
-import easy_scpi as scpi
 import pyvisa
 
 
-class PowerSupply(scpi.Instrument):
-    def __init__(self, port):
-        scpi.SCPI_Instrument.__init__(
-            self, port=port, timeout=5, read_termination="\n", write_termination="\n"
-        )
+class SPD3303CChannels(Enum):
+    CHANNEL_1 = (1,)
+    CHANNEL_2 = (2,)
+    CHANNEL_3 = 3
 
-        # other initialization code...
 
-    # --- public methods ---
-
-    @property
-    def voltage(self):
-        """
-        Returns the voltage setting
-        """
-        return self.source.volt.level()
-
-    @voltage.setter
-    def voltage(self, volts):
-        """
-        Sets the voltage of the instrument
-        """
-        self.source.volt.level(volts)
+class SPD3303CChannel:
+    def __init__(self, instrument, channel: int):
+        self.inst = instrument
+        self.channel = channel
 
     @property
-    def current(self):
-        """
-        Returns the current setting in Amps
-        """
-        return self.source.current.level()
+    def voltage(self) -> str:
+        resp = self.inst.query(f"MEAS:VOLT? CH{self.channel}")
+        # voltage = int(resp.split('\n')[0])
+        return resp
 
-    @current.setter
-    def current(self, amps):
-        """
-        Set the current of the instrument
-        """
-        self.source.current.level(amps)
 
-    def on(self):
-        """
-        Turns the output on
-        """
-        self.output.state("on")
+class SPD3303C:
+    # inst: USBInstrument
+    # rm: ResourceManager
+    channel_1: SPD3303CChannel
+    channel_2: SPD3303CChannel
+    channel_3: SPD3303CChannel
 
-    def off(self):
-        """
-        Turns the output off
-        """
-        self.output.state("off")
+    def __init__(self):
+        self.rm = pyvisa.ResourceManager()
+        res = self.rm.list_resources()
+        res_to_use = res[0]
+        self.inst = self.rm.open_resource(res_to_use)
+        self.inst.write_termination = "\n"  # Modify termination character
+        self.inst.read_termination = "\n"  # Modify termination character
+        self.inst.query_delay = 2
+
+        self.channel_1 = SPD3303CChannel(self.inst, 1)
+        self.channel_2 = SPD3303CChannel(self.inst, 2)
+        self.channel_3 = SPD3303CChannel(self.inst, 3)
+
+    @property
+    def idn(self) -> str:
+        return self.inst.query("*IDN?")
+
+    def close(self) -> None:
+        self.inst.close()
 
 
 if __name__ == "__main__":
-    # ps = PowerSupply('USB0::0x0483::0x7540::SPD3EDCC4R0010::INSTR')
-    # ps.connect()
-    # print("voltage = " + ps.voltage)
+    ps = SPD3303C()
+    print(f"IDN: {ps.idn}")
+    print(f"VOLTAGE: {ps.channel_1.voltage}V")
 
-    rm = pyvisa.ResourceManager()
-    res = rm.list_resources()
-    res_to_use = res[0]
-    inst = rm.open_resource(res_to_use)
-    # print (res_to_use)
-    # inst.send_end = True
-    # inst.timeout = 2000
-    inst.write_termination = "\n"  # Modify termination character
-    inst.read_termination = "\n"  # Modify termination character
-    print(f"Write termination: {inst.write_termination}")
-    print(f"Read termination: {inst.read_termination}")
-    inst.query_delay = 2
-    print("QUERY: " + inst.query("*IDN?"))
-    # inst.query_delay=3
-    print("QUERY: " + inst.query("MEAS:VOLT? CH1"))
-    print("QUERY: " + inst.query("MEAS:CURR? CH1"))
+    ps.close()
+    # # print (res_to_use)
+    # # inst.send_end = True
+    # # inst.timeout = 2000
+    # print("QUERY: " + )
+    # # inst.query_delay=3
+    # print("QUERY: " + inst.query("MEAS:VOLT? CH1"))
+    # print("QUERY: " + inst.query("MEAS:CURR? CH1"))
 
-    time.sleep(0.04)  # Wait
-    # inst.write('OUTP CH1,ON') #Turn on output
-    time.sleep(2)  # Wait
-    # inst.write('OUTP CH1,OFF') #Turn off output
-    time.sleep(2)  # Wait
-    inst.write("*IDN?")  # Write instrument and ask for identification string
-
-    time.sleep(1)  # Wait
-    qStr = inst.read()  # Read instrument response
-    print(str(qStr))  # Print returned string
-    inst.close()  # Close instrument VISA session
+    # time.sleep(0.04)  # Wait
+    # # inst.write('OUTP CH1,ON') #Turn on output
+    # time.sleep(2)  # Wait
+    # # inst.write('OUTP CH1,OFF') #Turn off output
+    # time.sleep(2)  # Wait
+    # inst.close()  # Close instrument VISA session
