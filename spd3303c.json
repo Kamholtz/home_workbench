@@ -1,0 +1,21 @@
+{
+	"SPD3303C": {
+		"idn" : {
+			"manufacturer": "Siglent",
+			"product_model": "SPD3303C",
+			"series_number": "SPD00001130025",
+			"software_version": "1.01.01.02"
+		},
+		"selected_channel": 1,
+		"channel" : [
+			{
+				"voltage": 1,
+				"current": 2
+			},
+			{
+				"voltage": 3,
+				"current": 4
+			}
+		]
+	}
+}
