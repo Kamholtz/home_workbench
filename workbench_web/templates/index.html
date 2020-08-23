@@ -35,7 +35,7 @@
                  linewidth: 10,
                  xRange: { min: 0, max: 100 },
              });
-             const ws = new WebSocket("ws://localhost:8000/ws");
+             const ws = new WebSocket("ws://192.168.1.51:8000/ws");
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
