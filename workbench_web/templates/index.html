@@ -3,7 +3,12 @@
 
 <head>
     <title>SPD3303C Streaming</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <!-- <scriptV src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
+</script>
 </head>
 
 <body>
@@ -147,113 +152,123 @@
         // INITIALIZATION
 
         Samples.utils.srand(Date.now());
-
-        // Google Analytics
-        /* eslint-disable */
-        if (document.location.hostname.match(/^(www\.)?chartjs\.org$/)) {
-            (function (i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r;
-                i[r] = i[r] || function () {
-                    (i[r].q = i[r].q || []).push(arguments)
-                }, i[r].l = 1 * new Date();
-                a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0];
-                a.async = 1;
-                a.src = g;
-                m.parentNode.insertBefore(a, m)
-            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-            ga('create', 'UA-28909194-3', 'auto');
-            ga('send', 'pageview');
-        }
-        /* eslint-enable */
-
     }(this));
 
 </script>
 
 <script>
-    var lineChartData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        datasets: [{
-            label: 'Voltage',
-            borderColor: window.chartColors.red,
-            backgroundColor: window.chartColors.red,
-            fill: false,
-            data: [
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor()
-            ],
-            yAxisID: 'y-axis-1',
-        }, {
-            label: 'Current',
-            borderColor: window.chartColors.blue,
-            backgroundColor: window.chartColors.blue,
-            fill: false,
-            data: [
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor(),
-                randomScalingFactor()
-            ],
-            yAxisID: 'y-axis-2'
-        }]
-    };
+    function newDate(days) {
+        return moment().add(days, 'd').toDate();
+    }
 
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = Chart.Line(ctx, {
-        data: lineChartData,
+    function newDateString(days) {
+        return moment().add(days, 'd').format();
+    }
+
+    var color = Chart.helpers.color;
+    var config = {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Dataset with string point data',
+                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.red,
+                fill: false,
+                data: [],
+            }, {
+                label: 'Dataset with date object point data',
+                backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.blue,
+                fill: false,
+                data: []
+            }]
+        },
         options: {
             responsive: true,
-            hoverMode: 'index',
-            stacked: false,
             title: {
                 display: true,
-                text: 'Power Supply Timeline'
+                text: 'Chart.js Time Point Data'
             },
             scales: {
-                yAxes: [{
-                    type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                xAxes: [{
+                    type: 'time',
                     display: true,
-                    position: 'left',
-                    id: 'y-axis-1',
-                }, {
-                    type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-                    display: true,
-                    position: 'right',
-                    id: 'y-axis-2',
-
-                    // grid line settings
-                    gridLines: {
-                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date'
                     },
+                    ticks: {
+                        major: {
+                            fontStyle: 'bold',
+                            fontColor: '#FF0000'
+                        }
+                    }
                 }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'value'
+                    }
+                }]
             }
         }
-    });
-
-    const ws = new WebSocket("ws://192.168.1.51:8000/ws");
-    let x = 0;
-    ws.onmessage = function (event) {
-        const measurement = JSON.parse(event.data);
-        x += 1
-        // currentDataPoints.push({
-        //     x,
-        //     y: measurement.current
-        // });
-        // voltageDataPoints.push({
-        //     x,
-        //     y: measurement.voltage
-        // });
-        // chart.update();
     };
+
+    window.onload = function () {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, config);
+
+        const ws = new WebSocket("ws://192.168.1.51:8000/ws");
+        let x = 0;
+        ws.onmessage = function (event) {
+            const measurement = JSON.parse(event.data);
+            x += 1;
+
+            chart.data.datasets[0].data.push({
+                x: x,
+                y: measurement.voltage
+            })
+            chart.data.datasets[1].data.push({
+                x: x,
+                y: measurement.current
+            })
+            chart.update();
+        };
+    };
+
+
+    // document.getElementById('randomizeData').addEventListener('click', function () {
+    //     config.data.datasets.forEach(function (dataset) {
+    //         dataset.data.forEach(function (dataObj) {
+    //             dataObj.y = randomScalingFactor();
+    //         });
+    //     });
+
+    //     window.myLine.update();
+    // });
+    // document.getElementById('addData').addEventListener('click', function () {
+    //     if (config.data.datasets.length > 0) {
+    //         config.data.datasets[0].data.push({
+    //             x: newDateString(config.data.datasets[0].data.length + 2),
+    //             y: randomScalingFactor()
+    //         });
+    //         config.data.datasets[1].data.push({
+    //             x: newDate(config.data.datasets[1].data.length + 2),
+    //             y: randomScalingFactor()
+    //         });
+
+    //         window.myLine.update();
+    //     }
+    // });
+
+    // document.getElementById('removeData').addEventListener('click', function () {
+    //     config.data.datasets.forEach(function (dataset) {
+    //         dataset.data.pop();
+    //     });
+
+    //     window.myLine.update();
+    // });
 
 </script>
 
