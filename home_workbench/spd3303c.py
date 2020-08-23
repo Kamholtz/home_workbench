@@ -27,8 +27,16 @@ class SPD3303CChannel:
         return float(resp)
 
     def select(self) -> None:
-        time.sleep(1)
+        time.sleep(2)
         self.inst.write(f"INST CH{self.channel}")
+
+    def on(self) -> None:
+        time.sleep(1)
+        self.inst.write(f"OUTP CH{self.channel},ON")
+
+    def off(self) -> None:
+        time.sleep(1)
+        self.inst.write(f"OUTP CH{self.channel},OFF")
 
 
 class SPD3303C:
@@ -62,10 +70,12 @@ class SPD3303C:
 if __name__ == "__main__":
     ps = SPD3303C()
     print(f"IDN: {ps.idn}")
-    ps.channel_1.select()
+    ps.channel_2.on()
+    ps.channel_2.select()
     print(f"VOLTAGE: {ps.channel_1.voltage}V")
     print(f"CURRENT: {ps.channel_1.current}V")
-    ps.channel_2.select()
+    ps.channel_1.select()
+    ps.channel_2.off()
 
     ps.close()
     # # print (res_to_use)
