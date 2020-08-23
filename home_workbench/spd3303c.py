@@ -39,7 +39,7 @@ class SPD3303CChannel:  # pragma: no cover
         self.inst.write(f"OUTP CH{self.channel},OFF")
 
 
-class SPD3303C:
+class SPD3303C:  # pragma: no cover
     # inst: USBInstrument
     # rm: ResourceManager
     channel_1: SPD3303CChannel
