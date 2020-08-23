@@ -78,17 +78,3 @@ if __name__ == "__main__":
     ps.channel_2.off()
 
     ps.close()
-    # # print (res_to_use)
-    # # inst.send_end = True
-    # # inst.timeout = 2000
-    # print("QUERY: " + )
-    # # inst.query_delay=3
-    # print("QUERY: " + inst.query("MEAS:VOLT? CH1"))
-    # print("QUERY: " + inst.query("MEAS:CURR? CH1"))
-
-    # time.sleep(0.04)  # Wait
-    # # inst.write('OUTP CH1,ON') #Turn on output
-    # time.sleep(2)  # Wait
-    # # inst.write('OUTP CH1,OFF') #Turn off output
-    # time.sleep(2)  # Wait
-    # inst.close()  # Close instrument VISA session
