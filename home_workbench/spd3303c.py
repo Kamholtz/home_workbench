@@ -11,7 +11,7 @@ class SPD3303CChannels(Enum):
     CHANNEL_3 = 3
 
 
-class SPD3303CChannel:
+class SPD3303CChannel:  # pragma: no cover
     def __init__(self, instrument, channel: int):
         self.inst = instrument
         self.channel = channel
