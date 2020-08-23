@@ -77,6 +77,9 @@
                         major: {
                             fontStyle: 'bold',
                             fontColor: '#FF0000'
+                        },
+                        time: {
+                            unit: "second"
                         }
                     }
                 }],
@@ -95,6 +98,9 @@
                         display: true,
                         labelString: 'Current (A)'
                     },
+                    ticks: {
+                        suggestedMax: 0.2
+                    }
                 }]
             }
         }
@@ -110,12 +116,13 @@
             const measurement = JSON.parse(event.data);
             x += 1;
 
+            var time = new Date()
             chart.data.datasets[0].data.push({
-                x: x,
+                x: time,
                 y: measurement.voltage
             })
             chart.data.datasets[1].data.push({
-                x: x,
+                x: time,
                 y: measurement.current
             })
             chart.update();
