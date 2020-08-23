@@ -1,4 +1,5 @@
 # scpi controller
+import time
 from enum import Enum
 
 import pyvisa
@@ -16,10 +17,18 @@ class SPD3303CChannel:
         self.channel = channel
 
     @property
-    def voltage(self) -> str:
+    def voltage(self) -> float:
         resp = self.inst.query(f"MEAS:VOLT? CH{self.channel}")
-        # voltage = int(resp.split('\n')[0])
-        return resp
+        return float(resp)
+
+    @property
+    def current(self) -> float:
+        resp = self.inst.query(f"MEAS:CURR? CH{self.channel}")
+        return float(resp)
+
+    def select(self) -> None:
+        time.sleep(1)
+        self.inst.write(f"INST CH{self.channel}")
 
 
 class SPD3303C:
@@ -53,7 +62,10 @@ class SPD3303C:
 if __name__ == "__main__":
     ps = SPD3303C()
     print(f"IDN: {ps.idn}")
+    ps.channel_1.select()
     print(f"VOLTAGE: {ps.channel_1.voltage}V")
+    print(f"CURRENT: {ps.channel_1.current}V")
+    ps.channel_2.select()
 
     ps.close()
     # # print (res_to_use)
