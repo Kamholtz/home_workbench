@@ -35,5 +35,5 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         await asyncio.sleep(0.1)
         payload = next(measurements)
-        payload = {"value": ps.channel_1.current}
+        payload = {"current": ps.channel_1.current, "voltage": ps.channel_1.voltage}
         await websocket.send_json(payload)

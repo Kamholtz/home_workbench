@@ -17,6 +17,12 @@
 			"type": "python",
 			"request": "launch",
 			"module": "spd3303c",
+		},
+		{
+			"name": "web module",
+			"type": "python",
+			"request": "launch",
+			"module": "workbench_web",
 		}
 	]
 }

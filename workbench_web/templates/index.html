@@ -1,7 +1,7 @@
 <!DOCTYPE html>
  <html>
      <head>
-         <title>Real time streaming</title>
+         <title>SPD3303C Streaming</title>
          <script src="https://d3js.org/d3-array.v2.min.js"></script>
          <script src="https://d3js.org/d3-color.v1.min.js"></script>
          <script src="https://d3js.org/d3-format.v1.min.js"></script>
@@ -13,27 +13,36 @@
          <script src="https://d3js.org/d3-axis.v1.min.js"></script>
          <script src="https://huww98.github.io/TimeChart/dist/timechart.min.js"></script>
          <style>
-             #chart { width: 100%; height: 300px; margin-top: 300px; }
+             #chart { width: 100%; height: 300px; }
          </style>
      </head>
      <body>
+         <div>
+             <h1>SPD3303C</h1>
+         </div>
          <div id="chart"></div>
+     </body>
          <script>
              const el = document.getElementById('chart');
-             const dataPoints = [];
+             const currentDataPoints = [];
+             const voltageDataPoints = [];
              const chart = new TimeChart(el, {
-                 series: [{ data: dataPoints, name: 'Current (A)', color: 'darkblue' }],
+                 series: [
+                    { data: currentDataPoints, name: 'Current (A)', color: 'darkblue' },
+                    { data: voltageDataPoints, name: 'Voltage (V)', color: 'green'}
+                    ],
                  realTime: true,
-                 xRange: { min: 0, max: 10 },
+                 linewidth: 10,
+                 xRange: { min: 0, max: 100 },
              });
              const ws = new WebSocket("ws://localhost:8000/ws");
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
                  x += 1
-                 dataPoints.push({x, y: measurement.value});
+                 currentDataPoints.push({x, y: measurement.current});
+                 voltageDataPoints.push({x, y: measurement.voltage});
                  chart.update();
              };
          </script>
-     </body>
  </html>
