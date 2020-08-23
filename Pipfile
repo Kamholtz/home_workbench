@@ -7,6 +7,9 @@ verify_ssl = true
 python_version = "3.8"
 
 [packages]
+fastapi = "*"
+jinja2 = "*"
+uvicorn = "*"
 
 [dev-packages]
 black = "==19.3b0"
