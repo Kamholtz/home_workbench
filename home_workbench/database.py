@@ -11,7 +11,7 @@ class LoggingDatabase:
         self.connection = self.engine.connect()
         print("DB Instance created")
 
-    def fetchByQuery(self, query):
+    def fetch_by_query(self, query):
         fetchQuery = self.connection.execute(f"SELECT * FROM {query}")
 
         query_data = fetchQuery.fetchall()
@@ -24,5 +24,5 @@ class LoggingDatabase:
 
 if __name__ == "__main__":
     db = LoggingDatabase()
-    results = db.fetchByQuery("public.measurements")
+    results = db.fetch_by_query("public.measurements")
     print(results)
