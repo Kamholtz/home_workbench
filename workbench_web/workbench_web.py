@@ -64,7 +64,7 @@ def insert_fake_power_supply_data() -> None:
     # new_measurement.d_datetime = now
     new_measurement.i_value = rand.random() * 10
 
-    logging_database.add_measurement(new_measurement)
+    logging_database.insert_measurement(new_measurement)
 
     new_measurement.i_measurement_type = 2
     new_measurement.i_device_id = 1
@@ -72,4 +72,4 @@ def insert_fake_power_supply_data() -> None:
     new_measurement.d_datetime = now
     new_measurement.i_value = rand.random() * 1
 
-    logging_database.add_measurement(new_measurement)
+    logging_database.insert_measurement(new_measurement)

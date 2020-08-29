@@ -1,8 +1,11 @@
+from datetime import timedelta
 from typing import List
 
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
+
+from home_workbench.workbench_helper import WorkbenchHelper
 
 from sqlalchemy import (  # MetaData,; Sequence,; String,; Table,
     Column,
@@ -42,7 +45,7 @@ class LoggingDatabase:
     def create_table(self):
         Base.metadata.create_all(self.engine)
 
-    def fetch_all_measurements(self) -> List[Measurement]:
+    def get_all_measurements(self) -> List[Measurement]:
         self.session = Session(bind=self.connection)
         measurements: List[Measurement] = self.session.query(Measurement).all()
 
@@ -51,7 +54,7 @@ class LoggingDatabase:
 
         return measurements
 
-    def fetch_by_query(self, query):
+    def get_by_query(self, query):
         fetchQuery = self.connection.execute(f"SELECT * FROM {query}")
         query_data = fetchQuery.fetchall()
 
@@ -60,13 +63,25 @@ class LoggingDatabase:
 
         return query_data
 
-    def add_measurement(self, measurement: Measurement):
+    def insert_measurement(self, measurement: Measurement):
         session = Session(bind=self.connection)
         session.add(measurement)
         session.commit()
 
+    def get_measurements_since_date(self, since_date: DateTime) -> List[Measurement]:
+        session = Session(bind=self.connection)
+        measurements: List[Measurement] = session.query(Measurement).filter(
+            Measurement.d_datetime > since_date
+        ).all()
+
+        return measurements
+
+    def get_measurements_in_last_timedelta(self, period: timedelta):
+        since_date = WorkbenchHelper.GetDatetimeNowToNearestSecond() - period
+        return self.get_measurements_since_date(since_date)
+
 
 if __name__ == "__main__":
     loggingDb = LoggingDatabase()
-    results = loggingDb.fetch_by_query("public.measurements")
-    results = loggingDb.fetch_all_measurements()
+    results = loggingDb.get_by_query("public.measurements")
+    results = loggingDb.get_all_measurements()
