@@ -38,7 +38,6 @@ class LoggingDatabase:
 
     def __init__(self):
         self.connection = self.engine.connect()
-        print("DB Instance created")
 
     def create_table(self):
         Base.metadata.create_all(self.engine)
@@ -54,19 +53,12 @@ class LoggingDatabase:
 
     def fetch_by_query(self, query):
         fetchQuery = self.connection.execute(f"SELECT * FROM {query}")
-
         query_data = fetchQuery.fetchall()
 
         for data in query_data:
             print(data)
 
         return query_data
-
-    def set_id_auto_increment(self):
-        return self.connection.execute(
-            "alter table tbl_user\n"
-            + "alter column i_id set default nextval('seq_user')"
-        )
 
     def add_measurement(self, measurement: Measurement):
         session = Session(bind=self.connection)
