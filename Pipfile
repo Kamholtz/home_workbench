@@ -12,6 +12,8 @@ jinja2 = "*"
 uvicorn = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+fastapi-utils = "*"
+sqlalchemy-stubs = "*"
 
 [dev-packages]
 black = "==19.3b0"
