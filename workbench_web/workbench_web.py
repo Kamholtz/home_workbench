@@ -38,9 +38,8 @@ def read_root(request: Request):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    last_update_time = datetime.now() - timedelta(hours=48)
+    last_update_time = datetime.now() - timedelta(minutes=30)
     while True:
-        await asyncio.sleep(5)
         payload = next(measurements)
 
         latest_measurements: List[
@@ -58,6 +57,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         last_update_time = datetime.now()
         await websocket.send_json(payload)
+        await asyncio.sleep(1)
 
 
 @app.on_event("startup")

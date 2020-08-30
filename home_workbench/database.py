@@ -72,7 +72,7 @@ class LoggingDatabase:
         session = Session(bind=self.connection)
         measurements: List[Measurement] = session.query(Measurement).filter(
             Measurement.d_datetime > since_date
-        ).all()
+        ).order_by(Measurement.d_datetime.asc()).all()
 
         return measurements
 
