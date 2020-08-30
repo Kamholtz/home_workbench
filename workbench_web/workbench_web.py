@@ -67,7 +67,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=3)
 def read_power_supply_and_insert() -> None:
 
     channels: List[SPD3303CChannel] = [ps.channel_1]
