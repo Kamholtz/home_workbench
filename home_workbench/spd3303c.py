@@ -6,8 +6,8 @@ import pyvisa
 
 
 class SPD3303CChannels(Enum):
-    CHANNEL_1 = (1,)
-    CHANNEL_2 = (2,)
+    CHANNEL_1 = 1
+    CHANNEL_2 = 2
     CHANNEL_3 = 3
 
 

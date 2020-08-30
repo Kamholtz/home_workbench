@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 from datetime import datetime, timedelta
+from typing import List
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
@@ -9,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
 
 from home_workbench.database import LoggingDatabase, Measurement
-from home_workbench.spd3303c import SPD3303C
+from home_workbench.spd3303c import SPD3303C, SPD3303CChannel
 from home_workbench.workbench_helper import WorkbenchHelper
 
 
@@ -23,7 +24,7 @@ templates_path = get_full_path_from_cwd("templates")
 print(templates_path)
 templates = Jinja2Templates(directory=templates_path)
 ps = SPD3303C()
-logging_database = LoggingDatabase()
+logging_database: LoggingDatabase = LoggingDatabase()
 
 with open(get_full_path_from_cwd("measurements.json"), "r") as file:
     measurements = iter(json.loads(file.read()))
@@ -52,7 +53,31 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=1)
+def read_power_supply_and_insert() -> None:
+
+    channels: List[SPD3303CChannel] = [ps.channel_1]
+
+    for c in channels:
+        meas = Measurement()
+        meas.i_device_id = 1
+        meas.i_channel_id = c.channel
+        meas.i_measurement_type = 1
+        meas.i_value = c.voltage
+        meas.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+        logging_database.insert_measurement(meas)
+
+        meas = Measurement()
+        meas.i_device_id = 1
+        meas.i_channel_id = c.channel
+        meas.i_measurement_type = 2
+        meas.i_value = c.current
+        meas.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+        logging_database.insert_measurement(meas)
+
+
+# @app.on_event("startup")
+# @repeat_every(seconds=5)
 def insert_fake_power_supply_data() -> None:
     new_measurement: Measurement = Measurement()
     new_measurement.i_measurement_type = 1

@@ -42,7 +42,7 @@ class LoggingDatabase:
     def __init__(self):
         self.connection = self.engine.connect()
 
-    def create_table(self):
+    def create_tables(self):
         Base.metadata.create_all(self.engine)
 
     def get_all_measurements(self) -> List[Measurement]:

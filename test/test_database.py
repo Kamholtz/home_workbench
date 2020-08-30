@@ -5,9 +5,9 @@ from home_workbench.database import LoggingDatabase, Measurement
 from home_workbench.workbench_helper import WorkbenchHelper
 
 
-def test_create_table() -> None:
+def test_create_tables() -> None:
     db = LoggingDatabase()
-    db.create_table()
+    db.create_tables()
 
     assert True
 
