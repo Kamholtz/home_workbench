@@ -1,35 +1,40 @@
 {
-	// Use IntelliSense to learn about possible attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Launch Chrome",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://192.168.1.51:8000/",
-			"webRoot": "${workspaceFolder}/workbench_web/templates"
-		},
-		{"name":"Python: Current File","type":"python","request":"launch","program":"${file}","console":"integratedTerminal"},
-		{
-			"name": "home_workbench module",
-			"type": "python",
-			"request": "launch",
-			"module": "home_workbench",
-			"args": ["5"]
-		},
-		{
-			"name": "spd3303c module",
-			"type": "python",
-			"request": "launch",
-			"module": "spd3303c",
-		},
-		{
-			"name": "web module",
-			"type": "python",
-			"request": "launch",
-			"module": "workbench_web",
-		}
-	]
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "web js module ",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://192.168.1.51:8000/",
+            "webRoot": "${workspaceFolder}/workbench_web/templates"
+        },
+        {
+            "name": "web py module",
+            "type": "python",
+            "request": "launch",
+            "module": "workbench_web",
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "home_workbench module",
+            "type": "python",
+            "request": "launch",
+            "module": "home_workbench",
+            "args": ["5"]
+        },
+        {
+            "name": "spd3303c module",
+            "type": "python",
+            "request": "launch",
+            "module": "spd3303c",
+        }
+    ]
 }

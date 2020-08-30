@@ -8,7 +8,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
-</script>
+    </script>
 </head>
 
 <body>
@@ -30,6 +30,7 @@
         purple: 'rgb(153, 102, 255)',
         grey: 'rgb(201, 203, 207)'
     };
+
 </script>
 
 <script>
@@ -84,51 +85,56 @@
                     }
                 }],
                 yAxes: [{
-                    display: true,
-                    position: 'left',
-                    scaleLabel: {
                         display: true,
-                        labelString: 'Voltage (V)'
-                    }
-                },
-                {
-                    display: true,
-                    position: 'right',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Current (A)'
+                        position: 'left',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Voltage (V)'
+                        }
                     },
-                    ticks: {
-                        suggestedMax: 0.2
+                    {
+                        display: true,
+                        position: 'right',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Current (A)'
+                        },
+                        ticks: {
+                            suggestedMax: 0.2
+                        }
                     }
-                }]
+                ]
             }
         }
     };
 
+
     window.onload = function () {
+        const measurement_types = {
+            voltage: 1,
+            current: 2
+        };
         var ctx = document.getElementById('myChart').getContext('2d');
         var chart = new Chart(ctx, config);
 
         const ws = new WebSocket("ws://192.168.1.51:8000/ws");
         let x = 0;
         ws.onmessage = function (event) {
-            const measurement = JSON.parse(event.data);
+            const measurements = JSON.parse(event.data);
             x += 1;
 
-            var time = new Date(measurement.time)
-            chart.data.datasets[0].data.push({
-                x: time,
-                y: measurement.voltage
-            })
-            chart.data.datasets[1].data.push({
-                x: time,
-                y: measurement.current
-            })
+            measurements.forEach((m) => {
+                data = {
+                    x: m.time,
+                    y: m.value
+                }
+
+                chart.data.datasets[m.measurement_type - 1].data.push(data);
+            });
+
             chart.update();
         };
     };
-
 
 </script>
 

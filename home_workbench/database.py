@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import List
 
 import sqlalchemy as db
@@ -68,7 +68,7 @@ class LoggingDatabase:
         session.add(measurement)
         session.commit()
 
-    def get_measurements_since_date(self, since_date: DateTime) -> List[Measurement]:
+    def get_measurements_since_date(self, since_date: datetime) -> List[Measurement]:
         session = Session(bind=self.connection)
         measurements: List[Measurement] = session.query(Measurement).filter(
             Measurement.d_datetime > since_date

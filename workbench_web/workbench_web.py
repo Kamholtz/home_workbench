@@ -38,22 +38,30 @@ def read_root(request: Request):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    last_update_time = datetime.now() - timedelta(hours=48)
     while True:
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(5)
         payload = next(measurements)
-        now = datetime.now()
-        now_rounded = now - timedelta(microseconds=now.microsecond)
-        datetime_encoded = jsonable_encoder(now_rounded)
-        payload = {
-            "time": datetime_encoded,
-            "current": ps.channel_1.current,
-            "voltage": ps.channel_1.voltage,
-        }
+
+        latest_measurements: List[
+            Measurement
+        ] = logging_database.get_measurements_since_date(last_update_time)
+
+        payload = [
+            {
+                "time": jsonable_encoder(m.d_datetime),
+                "value": m.i_value,
+                "measurement_type": m.i_measurement_type,
+            }
+            for m in latest_measurements
+        ]
+
+        last_update_time = datetime.now()
         await websocket.send_json(payload)
 
 
 @app.on_event("startup")
-@repeat_every(seconds=1)
+@repeat_every(seconds=5)
 def read_power_supply_and_insert() -> None:
 
     channels: List[SPD3303CChannel] = [ps.channel_1]
