@@ -21,10 +21,12 @@ def get_full_path_from_cwd(path):
 
 
 app = FastAPI()
+
 templates_path = get_full_path_from_cwd("templates")
-print(templates_path)
 templates = Jinja2Templates(directory=templates_path)
+
 ps = SPD3303C()
+
 logging_database: LoggingDatabase = LoggingDatabase()
 
 with open(get_full_path_from_cwd("measurements.json"), "r") as file:
