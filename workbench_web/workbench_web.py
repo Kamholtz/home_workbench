@@ -6,6 +6,7 @@ from typing import List
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
 
@@ -28,6 +29,9 @@ logging_database: LoggingDatabase = LoggingDatabase()
 
 with open(get_full_path_from_cwd("measurements.json"), "r") as file:
     measurements = iter(json.loads(file.read()))
+
+public_path = get_full_path_from_cwd("public")
+app.mount("/public", StaticFiles(directory=public_path), name="public")
 
 
 @app.get("/")
