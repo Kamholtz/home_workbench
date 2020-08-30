@@ -36,7 +36,7 @@ class Measurement(Base):
 class LoggingDatabase:
     # replace the user, password, hostname and database according to your configuration according to your information
     engine = db.create_engine(
-        "postgresql://read_write:simplepass1098@localhost:5432/logging", echo=True
+        "postgresql://read_write:simplepass1098@localhost:5432/logging", echo=False
     )
 
     def __init__(self):
@@ -77,7 +77,7 @@ class LoggingDatabase:
         return measurements
 
     def get_measurements_in_last_timedelta(self, period: timedelta):
-        since_date = WorkbenchHelper.GetDatetimeNowToNearestSecond() - period
+        since_date = WorkbenchHelper.get_datetime_now_to_nearest_sec() - period
         return self.get_measurements_since_date(since_date)
 
 

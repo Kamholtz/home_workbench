@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import random as rand
 from datetime import datetime, timedelta
 
 from fastapi import FastAPI, Request, WebSocket
@@ -11,6 +10,7 @@ from fastapi_utils.tasks import repeat_every
 
 from home_workbench.database import LoggingDatabase, Measurement
 from home_workbench.spd3303c import SPD3303C
+from home_workbench.workbench_helper import WorkbenchHelper
 
 
 def get_full_path_from_cwd(path):
@@ -54,22 +54,24 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.on_event("startup")
 @repeat_every(seconds=5)
 def insert_fake_power_supply_data() -> None:
-    now = datetime.now()
-
     new_measurement: Measurement = Measurement()
-    # new_measurement.i_id = 3
     new_measurement.i_measurement_type = 1
     new_measurement.i_device_id = 1
     new_measurement.i_channel_id = 1
-    # new_measurement.d_datetime = now
-    new_measurement.i_value = rand.random() * 10
+    new_measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+    new_measurement.i_value = WorkbenchHelper.get_float_with_variation(
+        mid_point=5, max_variation=0.25, decimal_places=1
+    )
 
     logging_database.insert_measurement(new_measurement)
 
+    new_measurement = Measurement()
     new_measurement.i_measurement_type = 2
     new_measurement.i_device_id = 1
     new_measurement.i_channel_id = 1
-    new_measurement.d_datetime = now
-    new_measurement.i_value = rand.random() * 1
+    new_measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+    new_measurement.i_value = WorkbenchHelper.get_float_with_variation(
+        mid_point=0.100, max_variation=0.050, decimal_places=3
+    )
 
     logging_database.insert_measurement(new_measurement)

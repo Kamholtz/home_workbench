@@ -1,4 +1,3 @@
-import random as rand
 from datetime import timedelta
 from typing import List
 
@@ -19,8 +18,10 @@ def test_measurements_insert() -> None:
     measurement.i_device_id = 1
     measurement.i_channel_id = 1
     measurement.i_measurement_type = 1
-    measurement.i_value = round(4.75 + rand.random() * 5, 1)
-    measurement.d_datetime = WorkbenchHelper.GetDatetimeNowToNearestSecond()
+    measurement.i_value = WorkbenchHelper.get_float_with_variation(
+        mid_point=5, max_variation=0.5, decimal_places=1
+    )
+    measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
     db.insert_measurement(measurement)
 
     assert measurement.i_id is not None
@@ -29,8 +30,10 @@ def test_measurements_insert() -> None:
     measurement.i_measurement_type = 2
     measurement.i_device_id = 1
     measurement.i_channel_id = 1
-    measurement.d_datetime = WorkbenchHelper.GetDatetimeNowToNearestSecond()
-    measurement.i_value = round(0.3 + rand.random() * 1, 1)
+    measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+    measurement.i_value = WorkbenchHelper.get_float_with_variation(
+        mid_point=0.300, max_variation=0.050, decimal_places=3
+    )
     db.insert_measurement(measurement)
 
     assert measurement.i_id is not None
