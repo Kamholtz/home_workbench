@@ -50,17 +50,19 @@ async def websocket_endpoint(websocket: WebSocket):
             Measurement
         ] = logging_database.get_measurements_since_date(last_update_time)
 
-        payload = [
-            {
-                "time": jsonable_encoder(m.d_datetime),
-                "value": m.i_value,
-                "measurement_type": m.i_measurement_type,
-            }
-            for m in latest_measurements
-        ]
+        if latest_measurements:
+            payload = [
+                {
+                    "time": jsonable_encoder(m.d_datetime),
+                    "value": m.i_value,
+                    "measurement_type": m.i_measurement_type,
+                }
+                for m in latest_measurements
+            ]
 
-        last_update_time = datetime.now()
-        await websocket.send_json(payload)
+            last_update_time = datetime.now()
+            await websocket.send_json(payload)
+
         await asyncio.sleep(1)
 
 

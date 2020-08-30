@@ -106,7 +106,6 @@ PowerSupplyChart.prototype.Bind = function () {
 	const ws = new WebSocket("ws://192.168.1.51:8000/ws");
 	ws.onmessage = function (event) {
 		const measurements = JSON.parse(event.data);
-		x += 1;
 
 		measurements.forEach((m) => {
 			var data = {
