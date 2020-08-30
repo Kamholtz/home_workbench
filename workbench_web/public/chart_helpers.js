@@ -135,10 +135,10 @@ function PowerSupplyChart() {
 					// Container for zoom options
 					zoom: {
 						// Boolean to enable zooming
-						enabled: false,
+						enabled: true,
 
 						// Enable drag-to-zoom behavior
-						drag: true,
+						drag: false,
 
 						// Drag-to-zoom effect can be customized
 						// drag: {
