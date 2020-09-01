@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 from datetime import datetime, timedelta
 from typing import List
@@ -33,22 +32,14 @@ templates = Jinja2Templates(directory=templates_path)
 ps = SPD3303C()
 
 logging_database: LoggingDatabase = LoggingDatabase()
-
-with open(get_full_path_from_cwd("measurements.json"), "r") as file:
-    measurements = iter(json.loads(file.read()))
-
 public_path = get_path_relative_to_this_module("public")
 app.mount("/public", StaticFiles(directory=public_path), name="public")
 
 
 @app.get("/")
 def read_root(request: Request):
-    # return templates.TemplateResponse("index.html", {"request": request})
-    # return app.send_static_file("index.html")
-
-    # index = get_full_path_from_cwd('public/index.html')
-    index = "workbench_web/public/index.html"
-    return FileResponse(index, media_type="text/html")
+    index_path = "workbench_web/public/index.html"
+    return FileResponse(index_path, media_type="text/html")
 
 
 @app.websocket("/ws")
@@ -56,8 +47,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     last_update_time = datetime.now() - timedelta(minutes=30)
     while True:
-        payload = next(measurements)
-
         latest_measurements: List[
             Measurement
         ] = logging_database.get_measurements_since_date(last_update_time)
