@@ -35,8 +35,13 @@
 
     <div id="app">
         <v-app id="inspire">
-            <powersupply-card v-for="item in powersupplies" v-bind:powersupply="item" v-bind:key="item.id">
-            </powersupply-card>
+            <v-container class="grey lighten-5">
+                <v-row no-gutters>
+                    <powersupply-card v-for="item in powersupplies" v-bind:powersupply="item" v-bind:key="item.id">
+                    </powersupply-card>
+                </v-row>
+            </v-container>
+
         </v-app>
     </div>
 </body>
@@ -49,7 +54,8 @@
             'powersupply': Object
         },
         template: `
-        <v-card class="mx-auto" max-width="344" outlined>
+        <v-col cols="12" sm="4">
+            <v-card class="mx-auto" max-width="344" outlined>
                 <v-list-item three-line>
                     <v-list-item-content>
                         <div class="overline mb-4">Channel {{ powersupply.id }}</div>
@@ -63,6 +69,7 @@
                     <v-btn text>Disable</v-btn>
                 </v-card-actions>
             </v-card>
+        </v-col>
             `
     });
 
@@ -82,7 +89,7 @@
                 {
                     id: 3,
                     voltage: 5,
-                    text: 'this is channel 2'
+                    text: 'this is channel 3'
                 },
             ]
         },

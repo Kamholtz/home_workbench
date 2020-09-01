@@ -50,6 +50,7 @@ function PowerSupplyChart() {
 		},
 		options: {
 			responsive: true,
+			// maintainAspectRatio: false,
 			title: {
 				display: true,
 				text: 'Power Supply'
@@ -195,7 +196,7 @@ PowerSupplyChart.prototype.Bind = function () {
 	var thisRef = this;
 	thisRef.chart = new Chart(thisRef.ctx, thisRef.config);
 
-	const ws = new WebSocket("ws://192.168.1.51:8000/ws");
+	const ws = new WebSocket("ws://localhost:8000/ws");
 	ws.onmessage = function (event) {
 		const measurements = JSON.parse(event.data);
 
