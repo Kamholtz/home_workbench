@@ -42,7 +42,7 @@ def read_root(request: Request):
     return FileResponse(index_path, media_type="text/html")
 
 
-@app.websocket("/ws")
+@app.websocket("/measurements")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     last_update_time = datetime.now() - timedelta(minutes=30)
