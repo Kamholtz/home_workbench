@@ -6,6 +6,7 @@ from typing import List
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
@@ -20,9 +21,13 @@ def get_full_path_from_cwd(path):
     return f"{root}\\{path}"
 
 
+def get_path_relative_to_this_module(path):
+    return f"workbench_web/{path}"
+
+
 app = FastAPI()
 
-templates_path = get_full_path_from_cwd("templates")
+templates_path = get_path_relative_to_this_module("templates")
 templates = Jinja2Templates(directory=templates_path)
 
 ps = SPD3303C()
@@ -32,13 +37,18 @@ logging_database: LoggingDatabase = LoggingDatabase()
 with open(get_full_path_from_cwd("measurements.json"), "r") as file:
     measurements = iter(json.loads(file.read()))
 
-public_path = get_full_path_from_cwd("public")
+public_path = get_path_relative_to_this_module("public")
 app.mount("/public", StaticFiles(directory=public_path), name="public")
 
 
 @app.get("/")
 def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # return templates.TemplateResponse("index.html", {"request": request})
+    # return app.send_static_file("index.html")
+
+    # index = get_full_path_from_cwd('public/index.html')
+    index = "workbench_web/public/index.html"
+    return FileResponse(index, media_type="text/html")
 
 
 @app.websocket("/ws")
