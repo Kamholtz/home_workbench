@@ -1,5 +1,7 @@
 'use strict';
 
+export default PowerSupplyChart
+
 window.chartColors = {
 	red: 'rgb(255, 99, 132)',
 	orange: 'rgb(255, 159, 64)',
@@ -11,19 +13,19 @@ window.chartColors = {
 };
 
 
-function newDate(days) {
-	return moment().add(days, 'd').toDate();
-}
+// function newDate(days) {
+// 	return moment().add(days, 'd').toDate();
+// }
 
-function newDateString(days) {
-	return moment().add(days, 'd').format();
-}
+// function newDateString(days) {
+// 	return moment().add(days, 'd').format();
+// }
 
 
-const MeasurementTypes = {
-	Voltage: 1,
-	Current: 2
-};
+// const MeasurementTypes = {
+// 	Voltage: 1,
+// 	Current: 2
+// };
 
 function PowerSupplyChart() {
 	this.ctx = null;

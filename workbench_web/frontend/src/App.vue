@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <canvas id="myChart" width="400" height="100"></canvas>
         <v-app id="inspire">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>
@@ -16,6 +17,7 @@
 
 <script>
 import PowerSupplyCard from "./components/PowerSupplyCard.vue";
+import PowerSupplyChart from "@/chart_helpers.js";
 
 export default {
     name: "App",
@@ -49,6 +51,12 @@ export default {
         console.log("greeting: " + gObject.greeting);
         this.flaskGreeting = gObject.greeting;
     }
+};
+
+window.onload = function() {
+    var powerSupplyChart = new PowerSupplyChart();
+    powerSupplyChart.ctx = document.getElementById("myChart").getContext("2d");
+    powerSupplyChart.Bind();
 };
 </script>
 
