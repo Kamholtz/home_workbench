@@ -1,22 +1,46 @@
 <template>
     <div id="app">
-        <p>{{ greeting }}</p>
-        <p>{{ flaskGreeting }}</p>
+        <v-app id="inspire">
+            <v-container class="grey lighten-5">
+                <v-row no-gutters>
+                    <PowerSupplyCard
+                        v-for="item in powersupplies"
+                        v-bind:powersupply="item"
+                        v-bind:key="item.id"
+                    ></PowerSupplyCard>
+                </v-row>
+            </v-container>
+        </v-app>
     </div>
 </template>
 
 <script>
-// import HelloWorld from "./components/HelloWorld.vue";
+import PowerSupplyCard from "./components/PowerSupplyCard.vue";
 
 export default {
     name: "App",
-    // components: {
-    //     HelloWorld
-    // },
+    components: {
+        PowerSupplyCard
+    },
     data: function() {
         return {
-            greeting: "Hello, Vue!",
-            flaskGreeting: ""
+            powersupplies: [
+                {
+                    id: 1,
+                    voltage: 10,
+                    text: "this is channel 1"
+                },
+                {
+                    id: 2,
+                    voltage: 3.3,
+                    text: "this is channel 2"
+                },
+                {
+                    id: 3,
+                    voltage: 5,
+                    text: "this is channel 3"
+                }
+            ]
         };
     },
     created: async function() {
@@ -29,12 +53,12 @@ export default {
 </script>
 
 <style>
-#app {
+/* #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
-}
+} */
 </style>

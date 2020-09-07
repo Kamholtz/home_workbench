@@ -39,8 +39,8 @@ app.add_middleware(
 templates_path = get_path_relative_to_this_module("templates")
 templates = Jinja2Templates(directory=templates_path)
 
-ps = SPD3303C()
 
+ps = SPD3303C()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
