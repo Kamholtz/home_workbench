@@ -1,5 +1,5 @@
 'use strict';
-
+var Chart = require('chart.js');
 export default PowerSupplyChart
 
 window.chartColors = {
@@ -198,7 +198,7 @@ PowerSupplyChart.prototype.Bind = function () {
 	var thisRef = this;
 	thisRef.chart = new Chart(thisRef.ctx, thisRef.config);
 
-	const ws = new WebSocket("ws://localhost:8000/measurements");
+	const ws = new WebSocket("ws://localhost:5000/measurements");
 	ws.onmessage = function (event) {
 		const measurements = JSON.parse(event.data);
 
