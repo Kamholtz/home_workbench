@@ -33,70 +33,11 @@
     </div>
     <canvas id="myChart" width="400" height="100"></canvas>
 
-    <div id="app">
-        <v-app id="inspire">
-            <v-container class="grey lighten-5">
-                <v-row no-gutters>
-                    <powersupply-card v-for="item in powersupplies" v-bind:powersupply="item" v-bind:key="item.id">
-                    </powersupply-card>
-                </v-row>
-            </v-container>
-
-        </v-app>
-    </div>
+    <div id="app"></div>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-<script>
-    Vue.component('powersupply-card', {
-        props: {
-            'powersupply': Object
-        },
-        template: `
-        <v-col cols="12" sm="4">
-            <v-card class="mx-auto" max-width="344" outlined>
-                <v-list-item three-line>
-                    <v-list-item-content>
-                        <div class="overline mb-4">Channel {{ powersupply.id }}</div>
-                        <v-list-item-title class="headline mb-1">Status: ON</v-list-item-title>
-                        <v-list-item-subtitle>Voltage: {{ powersupply.voltage }}, {{ powersupply.text }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                </v-list-item>
-
-                <v-card-actions>
-                    <v-btn text>Enable</v-btn>
-                    <v-btn text>Disable</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-col>
-            `
-    });
-
-    new Vue({
-        el: '#app',
-        data: {
-            powersupplies: [{
-                    id: 1,
-                    voltage: 10,
-                    text: 'this is channel 1'
-                },
-                {
-                    id: 2,
-                    voltage: 3.3,
-                    text: 'this is channel 2'
-                },
-                {
-                    id: 3,
-                    voltage: 5,
-                    text: 'this is channel 3'
-                },
-            ]
-        },
-        vuetify: new Vuetify(),
-    });
-
-</script>
 
 <script>
     window.onload = function () {

@@ -32,13 +32,15 @@ templates = Jinja2Templates(directory=templates_path)
 ps = SPD3303C()
 
 logging_database: LoggingDatabase = LoggingDatabase()
-public_path = get_path_relative_to_this_module("public")
-app.mount("/public", StaticFiles(directory=public_path), name="public")
+# public_path = get_path_relative_to_this_module("public")
+# app.mount("/public", StaticFiles(directory=public_path), name="public")
+dist_path = get_path_relative_to_this_module("dist")
+app.mount("/dist", StaticFiles(directory=dist_path), name="dist")
 
 
 @app.get("/")
 def read_root(request: Request):
-    index_path = "workbench_web/public/index.html"
+    index_path = "workbench_web/dist/index.html"
     return FileResponse(index_path, media_type="text/html")
 
 
