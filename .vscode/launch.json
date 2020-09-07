@@ -15,7 +15,8 @@
             "name": "web py module",
             "type": "python",
             "request": "launch",
-            "module": "workbench_web",
+            "cwd": "${workspaceFolder}/workbench_web/backend/app",
+            "module": "app",
         },
         {
             "name": "Python: Current File",

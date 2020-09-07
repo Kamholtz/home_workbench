@@ -5,8 +5,8 @@ from typing import List
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
 
@@ -26,16 +26,27 @@ def get_path_relative_to_this_module(path):
 
 app = FastAPI()
 
+origins = ["http://localhost", "http://localhost:8080"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 templates_path = get_path_relative_to_this_module("templates")
 templates = Jinja2Templates(directory=templates_path)
 
 ps = SPD3303C()
 
 logging_database: LoggingDatabase = LoggingDatabase()
-# public_path = get_path_relative_to_this_module("public")
-# app.mount("/public", StaticFiles(directory=public_path), name="public")
-dist_path = get_path_relative_to_this_module("dist")
-app.mount("/dist", StaticFiles(directory=dist_path), name="dist")
+
+
+@app.get("/greeting")
+async def get_greeting():
+    return {"greeting": "Hello World"}
 
 
 @app.get("/")
