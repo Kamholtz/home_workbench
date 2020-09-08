@@ -4,19 +4,22 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [{
-            "name": "web js module ",
             "type": "chrome",
             "request": "launch",
-            // "url": "http://192.168.1.51:8000/",
-            "url": "localhost:8000/",
-            "webRoot": "${workspaceFolder}/workbench_web/"
+            "name": "vuejs: chrome",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}/workbench_web/frontend/src",
+            "breakOnLoad": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*"
+            }
         },
         {
             "name": "web py module",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/workbench_web/backend/app",
-            "module": "app",
+            "cwd": "${workspaceFolder}/workbench_web/backend/app/app",
+            "module": "workbench_web",
         },
         {
             "name": "Python: Current File",

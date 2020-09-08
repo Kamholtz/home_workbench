@@ -3,16 +3,20 @@ import os
 from datetime import datetime, timedelta
 from typing import List
 
+import uvicorn
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
+from pyvisa.errors import VisaIOError
 
 from home_workbench.database import LoggingDatabase, Measurement
 from home_workbench.spd3303c import SPD3303C, SPD3303CChannel
 from home_workbench.workbench_helper import WorkbenchHelper
+
+# https://github.com/encode/uvicorn/issues/358
 
 
 def get_full_path_from_cwd(path):
@@ -40,7 +44,12 @@ templates_path = get_path_relative_to_this_module("templates")
 templates = Jinja2Templates(directory=templates_path)
 
 
-ps = SPD3303C()
+ps = None
+try:
+    ps = SPD3303C()
+except VisaIOError:
+    ps = None
+
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
@@ -84,6 +93,8 @@ async def websocket_endpoint(websocket: WebSocket):
 @repeat_every(seconds=3)
 def read_power_supply_and_insert() -> None:
 
+    if ps is None:
+        return
     channels: List[SPD3303CChannel] = [ps.channel_1]
 
     for c in channels:
@@ -104,9 +115,13 @@ def read_power_supply_and_insert() -> None:
         logging_database.insert_measurement(meas)
 
 
-# @app.on_event("startup")
-# @repeat_every(seconds=5)
+@app.on_event("startup")
+@repeat_every(seconds=5)
 def insert_fake_power_supply_data() -> None:
+
+    if ps is not None:
+        return
+
     new_measurement: Measurement = Measurement()
     new_measurement.i_measurement_type = 1
     new_measurement.i_device_id = 1
@@ -128,3 +143,7 @@ def insert_fake_power_supply_data() -> None:
     )
 
     logging_database.insert_measurement(new_measurement)
+
+
+if __name__ == "__main__":
+    uvicorn.run("workbench_web:app", host="localhost", port=5000, reload=True)
