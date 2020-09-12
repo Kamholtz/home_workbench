@@ -52,7 +52,7 @@ function PowerSupplyChart() {
 		},
 		options: {
 			responsive: true,
-			// maintainAspectRatio: false,
+			maintainAspectRatio: false,
 			title: {
 				display: true,
 				text: 'Power Supply'
@@ -130,9 +130,9 @@ function PowerSupplyChart() {
 						threshold: 10,
 
 						// Function called while the user is panning
-						onPan: function ({ chart }) { console.log(`I'm panning!!!`); },
+						onPan: function ({ chart }) { console.log(`I'm panning!!! ${chart}`); },
 						// Function called once panning is completed
-						onPanComplete: function ({ chart }) { console.log(`I was panned!!!`); }
+						onPanComplete: function ({ chart }) { console.log(`I was panned!!! ${chart}`); }
 					},
 
 					// Container for zoom options
@@ -182,9 +182,9 @@ function PowerSupplyChart() {
 						sensitivity: 3,
 
 						// Function called while the user is zooming
-						onZoom: function ({ chart }) { console.log(`I'm zooming!!!`); },
+						onZoom: function ({ chart }) { console.log(`I'm zooming!!! ${chart}`); },
 						// Function called once zooming is completed
-						onZoomComplete: function ({ chart }) { console.log(`I was zoomed!!!`); }
+						onZoomComplete: function ({ chart }) { console.log(`I was zoomed!!! ${chart}`); }
 					}
 				}
 			}
@@ -213,4 +213,10 @@ PowerSupplyChart.prototype.Bind = function () {
 
 		thisRef.chart.update();
 	};
+
+	const channelStatusWs = new WebSocket("ws://localhost:5000/channelstatus");
+	channelStatusWs.onmessage = function (event) {
+		const status = JSON.parse(event.data);
+		console.log("channelStatusWs.onmessage -> status", status);
+	}
 }

@@ -1,6 +1,8 @@
 <template>
     <div id="app">
-        <canvas id="myChart" width="400" height="100"></canvas>
+        <div style="height: 50vh; width: inherit">
+            <canvas id="myChart" ></canvas>
+        </div>
         <v-app id="inspire">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>
@@ -61,12 +63,7 @@ window.onload = function() {
 </script>
 
 <style>
-/* #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-} */
+#myChart {
+    min-height: 319px;
+}
 </style>
