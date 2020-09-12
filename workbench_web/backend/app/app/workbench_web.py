@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import List
 
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -49,38 +49,119 @@ def read_root(request: Request):
     return FileResponse(index_path, media_type="text/html")
 
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+    async def broadcast_json(self, message: object):
+        for connection in self.active_connections:
+            await connection.send_json(message)
+
+
+measurements_manager: ConnectionManager = ConnectionManager()
+channel_status_manager: ConnectionManager = ConnectionManager()
+
+# await manager.connect(websocket)
+#     try:
+#         while True:
+#             data = await websocket.receive_text()
+#             await manager.send_personal_message(f"You wrote: {data}", websocket)
+#             await manager.broadcast(f"Client #{client_id} says: {data}")
+#     except WebSocketDisconnect:
+#         manager.disconnect(websocket)
+#         await manager.broadcast(f"Client #{client_id} left the chat")
+
+
+@app.websocket("/channelstatus")
+async def channel_status_endpoint(websocket: WebSocket):
+
+    await channel_status_manager.connect(websocket)
+    try:
+        while True:
+            # Get the current channel status and send it
+            # data = await websocket.receive_text()
+            if LAST_STATUS_PAYLOAD is not None:
+                await websocket.send_json(LAST_STATUS_PAYLOAD)
+
+            await asyncio.sleep(5)
+
+    except WebSocketDisconnect:
+        measurements_manager.disconnect(websocket)
+
+
 @app.websocket("/measurements")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
+    await measurements_manager.connect(websocket)
+
     last_update_time = datetime.now() - timedelta(minutes=30)
-    while True:
-        latest_measurements: List[
-            Measurement
-        ] = logging_database.get_measurements_since_date(last_update_time)
+    try:
+        while True:
+            latest_measurements: List[
+                Measurement
+            ] = logging_database.get_measurements_since_date(last_update_time)
 
-        if latest_measurements:
-            payload = [
-                {
-                    "time": jsonable_encoder(m.d_datetime),
-                    "value": m.i_value,
-                    "measurement_type": m.i_measurement_type,
-                }
-                for m in latest_measurements
-            ]
+            if latest_measurements:
+                payload = [
+                    {
+                        "time": jsonable_encoder(m.d_datetime),
+                        "value": m.i_value,
+                        "measurement_type": m.i_measurement_type,
+                        "channel": 1,
+                    }
+                    for m in latest_measurements
+                ]
 
-            last_update_time = datetime.now()
-            await websocket.send_json(payload)
+                last_update_time = datetime.now()
+                await websocket.send_json(payload)
 
-        await asyncio.sleep(1)
+            await asyncio.sleep(1)
+
+    except WebSocketDisconnect:
+        measurements_manager.disconnect(websocket)
+
+
+LAST_STATUS_PAYLOAD = None
 
 
 @app.on_event("startup")
 @repeat_every(seconds=3)
-def read_power_supply_and_insert() -> None:
+async def read_power_supply_and_insert() -> None:
     global ps
+    global LAST_STATUS_PAYLOAD
     if ps is None:
         ps = WorkbenchWebHelper.get_power_supply()
         return
+
+    status = ps.status
+    payload = [
+        {
+            "channel": 1,
+            "supply_mode": status.channel_1_supply_mode.value,
+            "state": status.channel_1_state.value,
+        },
+        {
+            "channel": 2,
+            "supply_mode": status.channel_2_supply_mode.value,
+            "state": status.channel_2_state.value,
+        },
+    ]
+    LAST_STATUS_PAYLOAD = payload
+    # await channel_status_manager.broadcast_json(payload)
+
     channels: List[SPD3303CChannel] = [ps.channel_1]
 
     for c in channels:

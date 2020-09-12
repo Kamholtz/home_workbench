@@ -218,5 +218,5 @@ PowerSupplyChart.prototype.Bind = function () {
 	channelStatusWs.onmessage = function (event) {
 		const status = JSON.parse(event.data);
 		console.log("channelStatusWs.onmessage -> status", status);
-	}
+	};
 }
