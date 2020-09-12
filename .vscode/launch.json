@@ -33,12 +33,14 @@
             "type": "python",
             "request": "launch",
             "module": "home_workbench",
+            "cwd": "${workspaceFolder}\\home_workbench",
             "args": ["5"]
         },
         {
             "name": "spd3303c module",
             "type": "python",
             "request": "launch",
+            "cwd": "${workspaceFolder}\\home_workbench",
             "module": "spd3303c",
         }
     ]

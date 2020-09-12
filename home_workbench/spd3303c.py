@@ -11,6 +11,56 @@ class SPD3303CChannels(Enum):
     CHANNEL_3 = 3
 
 
+class SPD3303ChannelSupplyMode(Enum):
+    CONSTANT_VOLTAGE = 0
+    CONSTANT_CURRENT = 1
+
+
+class SPD3303ChannelsMode(Enum):
+    INDEPENDENT = 1
+    PARALLEL = 2
+    SERIES = 3
+
+
+class SPD3303ChannelState(Enum):
+    OFF = 0
+    ON = 1
+
+
+class SPD3303Status:
+    channel_1_supply_mode: SPD3303ChannelSupplyMode
+    channel_2_supply_mode: SPD3303ChannelSupplyMode
+    channels_supply_mode: SPD3303ChannelsMode
+    channel_1_state: SPD3303ChannelState
+    channel_2_state: SPD3303ChannelState
+
+    CHANNEL_1_CV_CC_MASK = 0x0001
+    CHANNEL_2_CV_CC_MASK = 0x0002
+    CHANNELS_SUPPLY_MODE_MASK = 0x000C
+    CHANNEL_1_STATE_MASK = 0x0100
+    CHANNEL_2_STATE_MASK = 0x0200
+
+    def __init__(self, hex_status: str):
+        int_status = int(hex_status, 16)
+        self.channel_1_supply_mode = SPD3303ChannelSupplyMode(
+            (int_status & SPD3303Status.CHANNEL_1_CV_CC_MASK) >> 0
+        )
+        self.channel_2_supply_mode = SPD3303ChannelSupplyMode(
+            (int_status & SPD3303Status.CHANNEL_2_CV_CC_MASK) >> 1
+        )
+
+        self.channels_supply_mode = SPD3303ChannelsMode(
+            (int_status & SPD3303Status.CHANNELS_SUPPLY_MODE_MASK) >> 2
+        )
+
+        self.channel_1_state = SPD3303ChannelState(
+            (int_status & SPD3303Status.CHANNEL_1_STATE_MASK) >> 4
+        )
+        self.channel_2_state = SPD3303ChannelState(
+            (int_status & SPD3303Status.CHANNEL_2_STATE_MASK) >> 5
+        )
+
+
 class SPD3303CChannel:  # pragma: no cover
     def __init__(self, instrument, channel: int):
         self.inst = instrument
@@ -63,6 +113,11 @@ class SPD3303C:  # pragma: no cover
     def idn(self) -> str:
         return self.inst.query("*IDN?")
 
+    @property
+    def status(self) -> SPD3303Status:
+        hex_response = self.inst.query("SYST:STAT?")
+        return SPD3303Status(hex_response)
+
     def close(self) -> None:
         self.inst.close()
 
@@ -72,6 +127,7 @@ if __name__ == "__main__":
     print(f"IDN: {ps.idn}")
     ps.channel_2.on()
     ps.channel_2.select()
+    print(f"STATUS: {ps.status}")
     print(f"VOLTAGE: {ps.channel_1.voltage}V")
     print(f"CURRENT: {ps.channel_1.current}V")
     ps.channel_1.select()
