@@ -1,5 +1,4 @@
 import asyncio
-import os
 from datetime import datetime, timedelta
 from typing import List
 
@@ -8,30 +7,21 @@ from fastapi import FastAPI, Request, WebSocket
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
-from pyvisa.errors import VisaIOError
+from workbench_web_helper import WorkbenchWebHelper
 
 from home_workbench.database import LoggingDatabase, Measurement
 from home_workbench.spd3303c import SPD3303C, SPD3303CChannel
 from home_workbench.workbench_helper import WorkbenchHelper
 
+# from fastapi.templating import Jinja2Templates
+
+
 # https://github.com/encode/uvicorn/issues/358
 
 
-def get_full_path_from_cwd(path):
-    root = os.path.dirname(os.path.realpath(__file__))
-    return f"{root}\\{path}"
-
-
-def get_path_relative_to_this_module(path):
-    return f"workbench_web/{path}"
-
-
 app = FastAPI()
-
 origins = ["http://localhost", "http://localhost:8080"]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -40,16 +30,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-templates_path = get_path_relative_to_this_module("templates")
-templates = Jinja2Templates(directory=templates_path)
+# templates_path = get_path_relative_to_this_module("templates")
+# templates = Jinja2Templates(directory=templates_path)
 
 
-ps = None
-try:
-    ps = SPD3303C()
-except VisaIOError:
-    ps = None
-
+ps: SPD3303C = WorkbenchWebHelper.get_power_supply()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
@@ -92,8 +77,9 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.on_event("startup")
 @repeat_every(seconds=3)
 def read_power_supply_and_insert() -> None:
-
+    global ps
     if ps is None:
+        ps = WorkbenchWebHelper.get_power_supply()
         return
     channels: List[SPD3303CChannel] = [ps.channel_1]
 
