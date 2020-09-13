@@ -70,7 +70,6 @@ export default {
         updatePowerSupplyCards(statusData) {
             this.powersupplies[0].state = statusData[0].state == 0 ? "OFF" : "ON"
             this.powersupplies[1].state = statusData[1].state == 0 ? "OFF" : "ON"
-            // this.powersupplies[]
         }
     }
 };

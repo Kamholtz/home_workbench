@@ -1,6 +1,7 @@
 # scpi controller
 import time
 from enum import Enum
+from functools import total_ordering
 
 import pyvisa
 
@@ -27,6 +28,7 @@ class SPD3303ChannelState(Enum):
     ON = 1
 
 
+@total_ordering
 class SPD3303Status:
     channel_1_supply_mode: SPD3303ChannelSupplyMode
     channel_2_supply_mode: SPD3303ChannelSupplyMode
@@ -54,6 +56,30 @@ class SPD3303Status:
         self.channel_1_state = SPD3303ChannelState(ch_1_state)
         ch_2_state = (int_status & SPD3303Status.CHANNEL_2_STATE_MASK) >> 5
         self.channel_2_state = SPD3303ChannelState(ch_2_state)
+
+    def __eq__(self, other):
+        return (
+            self.channel_1_supply_mode,
+            self.channel_2_supply_mode,
+            self.channels_mode,
+            self.channel_1_state,
+            self.channel_2_state,
+        ) == (
+            other.channel_1_supply_mode,
+            other.channel_2_supply_mode,
+            other.channels_mode,
+            other.channel_1_state,
+            other.channel_2_state,
+        )
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        return (self.channel_1_state, self.channel_2_state) < (
+            other.channel_1_state,
+            other.channel_2_state,
+        )
 
 
 class SPD3303CChannel:  # pragma: no cover

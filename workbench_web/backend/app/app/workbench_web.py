@@ -67,7 +67,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
-    async def broadcast_json(self, message: object):
+    async def broadcast_json(self, message):
         for connection in self.active_connections:
             await connection.send_json(message)
 
@@ -76,18 +76,24 @@ measurements_manager: ConnectionManager = ConnectionManager()
 channel_status_manager: ConnectionManager = ConnectionManager()
 
 
+LAST_STATUS = None
+LAST_STATUS_PAYLOAD = None
+
+
 @app.websocket("/channelstatus")
 async def channel_status_endpoint(websocket: WebSocket):
 
     await channel_status_manager.connect(websocket)
     try:
         while True:
+            data = await websocket.receive_json()
+            print(data)
             # Get the current channel status and send it
             # data = await websocket.receive_text()
-            if LAST_STATUS_PAYLOAD is not None:
-                await websocket.send_json(LAST_STATUS_PAYLOAD)
+            # if LAST_STATUS_PAYLOAD is not None:
+            #     await websocket.send_json(LAST_STATUS_PAYLOAD)
 
-            await asyncio.sleep(5)
+            # await asyncio.sleep(1)
 
     except WebSocketDisconnect:
         measurements_manager.disconnect(websocket)
@@ -124,14 +130,12 @@ async def websocket_endpoint(websocket: WebSocket):
         measurements_manager.disconnect(websocket)
 
 
-LAST_STATUS_PAYLOAD = None
-
-
 @app.on_event("startup")
 @repeat_every(seconds=3)
 async def read_power_supply_and_insert() -> None:
     global ps
-    global LAST_STATUS_PAYLOAD
+    global LAST_STATUS_PAYLOAD, LAST_STATUS
+    global channel_status_manager
     if ps is None:
         ps = WorkbenchWebHelper.get_power_supply()
         return
@@ -149,8 +153,12 @@ async def read_power_supply_and_insert() -> None:
             "state": status.channel_2_state.value,
         },
     ]
-    LAST_STATUS_PAYLOAD = payload
-    # await channel_status_manager.broadcast_json(payload)
+
+    if LAST_STATUS is None or status != LAST_STATUS:
+        await channel_status_manager.broadcast_json(payload)
+        LAST_STATUS = status
+        LAST_STATUS_PAYLOAD = payload
+        # await channel_status_manager.broadcast_json(payload)
 
     channels: List[SPD3303CChannel] = [ps.channel_1]
 
