@@ -52,6 +52,14 @@ export default {
         const gObject = await gResponse.json();
         console.log("greeting: " + gObject.greeting);
         this.flaskGreeting = gObject.greeting;
+
+        // https://markus.oberlehner.net/blog/distributed-vue-applications-pushing-content-and-component-updates-to-the-client/
+
+        const channelStatusWs = new WebSocket("ws://localhost:5000/channelstatus");
+        channelStatusWs.onmessage = function (event) {
+            const status = JSON.parse(event.data);
+            console.log("channelStatusWs.onmessage -> status", status);
+        };
     }
 };
 

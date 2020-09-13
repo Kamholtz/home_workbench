@@ -75,16 +75,6 @@ class ConnectionManager:
 measurements_manager: ConnectionManager = ConnectionManager()
 channel_status_manager: ConnectionManager = ConnectionManager()
 
-# await manager.connect(websocket)
-#     try:
-#         while True:
-#             data = await websocket.receive_text()
-#             await manager.send_personal_message(f"You wrote: {data}", websocket)
-#             await manager.broadcast(f"Client #{client_id} says: {data}")
-#     except WebSocketDisconnect:
-#         manager.disconnect(websocket)
-#         await manager.broadcast(f"Client #{client_id} left the chat")
-
 
 @app.websocket("/channelstatus")
 async def channel_status_endpoint(websocket: WebSocket):
@@ -213,4 +203,6 @@ def insert_fake_power_supply_data() -> None:
 
 
 if __name__ == "__main__":
-    uvicorn.run("workbench_web:app", host="localhost", port=5000, reload=True)
+    uvicorn.run(
+        "workbench_web:app", host="localhost", port=5000, reload=True, log_level="debug"
+    )

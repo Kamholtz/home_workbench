@@ -30,35 +30,30 @@ class SPD3303ChannelState(Enum):
 class SPD3303Status:
     channel_1_supply_mode: SPD3303ChannelSupplyMode
     channel_2_supply_mode: SPD3303ChannelSupplyMode
-    channels_supply_mode: SPD3303ChannelsMode
+    channels_mode: SPD3303ChannelsMode
     channel_1_state: SPD3303ChannelState
     channel_2_state: SPD3303ChannelState
 
-    CHANNEL_1_CV_CC_MASK = 0x0001
-    CHANNEL_2_CV_CC_MASK = 0x0002
-    CHANNELS_SUPPLY_MODE_MASK = 0x000C
-    CHANNEL_1_STATE_MASK = 0x0100
-    CHANNEL_2_STATE_MASK = 0x0200
+    CHANNEL_1_CV_CC_MASK = 0x01
+    CHANNEL_2_CV_CC_MASK = 0x02
+    CHANNELS_MODE_MASK = 0x0C
+    CHANNEL_1_STATE_MASK = 0x10
+    CHANNEL_2_STATE_MASK = 0x20
 
     def __init__(self, hex_status: str):
         int_status = int(hex_status, 16)
-        self.channel_1_supply_mode = SPD3303ChannelSupplyMode(
-            (int_status & SPD3303Status.CHANNEL_1_CV_CC_MASK) >> 0
-        )
-        self.channel_2_supply_mode = SPD3303ChannelSupplyMode(
-            (int_status & SPD3303Status.CHANNEL_2_CV_CC_MASK) >> 1
-        )
+        ch_1_supply_mode_bits = (int_status & SPD3303Status.CHANNEL_1_CV_CC_MASK) >> 0
+        self.channel_1_supply_mode = SPD3303ChannelSupplyMode(ch_1_supply_mode_bits)
+        ch_2_supply_mode_bits = (int_status & SPD3303Status.CHANNEL_2_CV_CC_MASK) >> 1
+        self.channel_2_supply_mode = SPD3303ChannelSupplyMode(ch_2_supply_mode_bits)
 
-        self.channels_supply_mode = SPD3303ChannelsMode(
-            (int_status & SPD3303Status.CHANNELS_SUPPLY_MODE_MASK) >> 2
-        )
+        chs_mode = (int_status & SPD3303Status.CHANNELS_MODE_MASK) >> 2
+        self.channels_mode = SPD3303ChannelsMode(chs_mode)
 
-        self.channel_1_state = SPD3303ChannelState(
-            (int_status & SPD3303Status.CHANNEL_1_STATE_MASK) >> 4
-        )
-        self.channel_2_state = SPD3303ChannelState(
-            (int_status & SPD3303Status.CHANNEL_2_STATE_MASK) >> 5
-        )
+        ch_1_state = (int_status & SPD3303Status.CHANNEL_1_STATE_MASK) >> 4
+        self.channel_1_state = SPD3303ChannelState(ch_1_state)
+        ch_2_state = (int_status & SPD3303Status.CHANNEL_2_STATE_MASK) >> 5
+        self.channel_2_state = SPD3303ChannelState(ch_2_state)
 
 
 class SPD3303CChannel:  # pragma: no cover
