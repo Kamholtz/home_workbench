@@ -214,9 +214,4 @@ PowerSupplyChart.prototype.Bind = function () {
 		thisRef.chart.update();
 	};
 
-	const channelStatusWs = new WebSocket("ws://localhost:5000/channelstatus");
-	channelStatusWs.onmessage = function (event) {
-		const status = JSON.parse(event.data);
-		console.log("channelStatusWs.onmessage -> status", status);
-	};
 }

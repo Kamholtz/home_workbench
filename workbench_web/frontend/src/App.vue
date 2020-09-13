@@ -32,22 +32,26 @@ export default {
                 {
                     id: 1,
                     voltage: 10,
+                    state: "OFF",
                     text: "this is channel 1"
                 },
                 {
                     id: 2,
                     voltage: 3.3,
+                    state: "OFF",
                     text: "this is channel 2"
                 },
                 {
                     id: 3,
                     voltage: 5,
+                    state: "OFF",
                     text: "this is channel 3"
                 }
             ]
         };
     },
     created: async function() {
+        var thisRef = this;
         const gResponse = await fetch("http://localhost:5000/greeting");
         const gObject = await gResponse.json();
         console.log("greeting: " + gObject.greeting);
@@ -58,8 +62,16 @@ export default {
         const channelStatusWs = new WebSocket("ws://localhost:5000/channelstatus");
         channelStatusWs.onmessage = function (event) {
             const status = JSON.parse(event.data);
+            thisRef.updatePowerSupplyCards(status);
             console.log("channelStatusWs.onmessage -> status", status);
         };
+    },
+    methods: {
+        updatePowerSupplyCards(statusData) {
+            this.powersupplies[0].state = statusData[0].state == 0 ? "OFF" : "ON"
+            this.powersupplies[1].state = statusData[1].state == 0 ? "OFF" : "ON"
+            // this.powersupplies[]
+        }
     }
 };
 
