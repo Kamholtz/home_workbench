@@ -31,21 +31,21 @@ export default {
             powersupplies: [
                 {
                     id: 1,
-                    voltage: 0,
-                    current: 0,
-                    state: "OFF"
+                    voltage: "?",
+                    current: "?",
+                    state: "???"
                 },
                 {
                     id: 2,
-                    voltage: 0,
-                    current: 0,
-                    state: "OFF"
+                    voltage: "?",
+                    current: "?",
+                    state: "???"
                 },
                 {
                     id: 3,
-                    voltage: 0,
-                    current: 0,
-                    state: "OFF"
+                    voltage: "?",
+                    current: "?",
+                    state: "???"
                 }
             ]
         };

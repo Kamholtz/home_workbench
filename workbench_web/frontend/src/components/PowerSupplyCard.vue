@@ -6,6 +6,7 @@
                   <div class="overline mb-4">Channel {{ powersupply.id }}</div>
                   <v-list-item-title class="headline mb-1">State: {{ powersupply.state }}</v-list-item-title>
                   <v-list-item-subtitle>Voltage: {{ powersupply.voltage }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>Current: {{ powersupply.current }}</v-list-item-subtitle>
               </v-list-item-content>
           </v-list-item>
 
