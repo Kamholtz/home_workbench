@@ -31,21 +31,21 @@ export default {
             powersupplies: [
                 {
                     id: 1,
-                    voltage: 10,
-                    state: "OFF",
-                    text: "this is channel 1"
+                    voltage: 0,
+                    current: 0,
+                    state: "OFF"
                 },
                 {
                     id: 2,
-                    voltage: 3.3,
-                    state: "OFF",
-                    text: "this is channel 2"
+                    voltage: 0,
+                    current: 0,
+                    state: "OFF"
                 },
                 {
                     id: 3,
-                    voltage: 5,
-                    state: "OFF",
-                    text: "this is channel 3"
+                    voltage: 0,
+                    current: 0,
+                    state: "OFF"
                 }
             ]
         };
@@ -69,7 +69,12 @@ export default {
     methods: {
         updatePowerSupplyCards(statusData) {
             this.powersupplies[0].state = statusData[0].state == 0 ? "OFF" : "ON"
+            this.powersupplies[0].voltage = statusData[0].voltage;
+            this.powersupplies[0].current = statusData[0].current;
+
             this.powersupplies[1].state = statusData[1].state == 0 ? "OFF" : "ON"
+            this.powersupplies[1].voltage = statusData[1].voltage;
+            this.powersupplies[1].current = statusData[1].current;
         }
     }
 };

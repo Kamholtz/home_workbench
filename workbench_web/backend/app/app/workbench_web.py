@@ -86,6 +86,7 @@ LAST_SOURCE_CURRENTS: List[float] = [0] * 2
 async def channel_status_endpoint(websocket: WebSocket):
 
     await channel_status_manager.connect(websocket)
+    await websocket.send_json(LAST_STATUS_PAYLOAD)
     try:
         while True:
             data = await websocket.receive_json()
