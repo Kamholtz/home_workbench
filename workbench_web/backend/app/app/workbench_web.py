@@ -78,6 +78,8 @@ channel_status_manager: ConnectionManager = ConnectionManager()
 
 LAST_STATUS = None
 LAST_STATUS_PAYLOAD = None
+LAST_SOURCE_VOLTAGES: List[float] = [0] * 2
+LAST_SOURCE_CURRENTS: List[float] = [0] * 2
 
 
 @app.websocket("/channelstatus")
@@ -128,7 +130,7 @@ async def websocket_endpoint(websocket: WebSocket):
 @repeat_every(seconds=3)
 async def read_power_supply_and_insert() -> None:
     global ps
-    global LAST_STATUS_PAYLOAD, LAST_STATUS
+    global LAST_STATUS_PAYLOAD, LAST_STATUS, LAST_SOURCE_CURRENTS, LAST_SOURCE_VOLTAGES
     global channel_status_manager
     if ps is None:
         ps = WorkbenchWebHelper.get_power_supply()
@@ -136,25 +138,41 @@ async def read_power_supply_and_insert() -> None:
 
     status = ps.status
 
-    if LAST_STATUS is None or status != LAST_STATUS:
+    channels: List[SPD3303CChannel] = [ps.channel_1, ps.channel_2]
+
+    source_voltages = [c.source_voltage for c in channels]
+    source_currents = [c.source_current for c in channels]
+
+    if (
+        LAST_STATUS is None
+        or status != LAST_STATUS
+        or source_voltages != LAST_SOURCE_VOLTAGES
+        or source_currents != LAST_SOURCE_CURRENTS
+    ):
         payload = [
             {
                 "channel": 1,
                 "supply_mode": status.channel_1_supply_mode.value,
                 "state": status.channel_1_state.value,
+                "voltage": source_voltages[0],
+                "current": source_currents[0],
             },
             {
                 "channel": 2,
                 "supply_mode": status.channel_2_supply_mode.value,
                 "state": status.channel_2_state.value,
+                "voltage": source_voltages[1],
+                "current": source_currents[1],
             },
         ]
 
         await channel_status_manager.broadcast_json(payload)
         LAST_STATUS = status
         LAST_STATUS_PAYLOAD = payload
+        LAST_SOURCE_VOLTAGES = source_voltages
+        LAST_SOURCE_CURRENTS = source_currents
 
-    channels: List[SPD3303CChannel] = [ps.channel_1]
+    channels = [ps.channel_1]
 
     for c in channels:
         meas = Measurement()
