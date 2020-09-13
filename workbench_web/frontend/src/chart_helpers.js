@@ -41,13 +41,15 @@ function PowerSupplyChart() {
 				backgroundColor: this.color(window.chartColors.red).alpha(0.5).rgbString(),
 				borderColor: window.chartColors.red,
 				fill: false,
-				data: []
+				data: [],
+				yAxisID: 'y-axis-voltage'
 			}, {
 				label: 'Current',
 				backgroundColor: this.color(window.chartColors.blue).alpha(0.5).rgbString(),
 				borderColor: window.chartColors.blue,
 				fill: false,
-				data: []
+				data: [],
+				yAxisID: 'y-axis-current'
 			}]
 		},
 		options: {
@@ -81,7 +83,8 @@ function PowerSupplyChart() {
 					scaleLabel: {
 						display: true,
 						labelString: 'Voltage (V)'
-					}
+					},
+					id: 'y-axis-voltage'
 				},
 				{
 					display: true,
@@ -92,7 +95,8 @@ function PowerSupplyChart() {
 					},
 					ticks: {
 						suggestedMax: 0.2
-					}
+					},
+					id: 'y-axis-current'
 				}
 				]
 			},

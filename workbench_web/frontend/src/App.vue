@@ -40,12 +40,6 @@ export default {
                     voltage: "?",
                     current: "?",
                     state: "???"
-                },
-                {
-                    id: 3,
-                    voltage: "?",
-                    current: "?",
-                    state: "???"
                 }
             ]
         };

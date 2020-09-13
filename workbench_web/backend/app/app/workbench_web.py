@@ -8,6 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi_utils.tasks import repeat_every
+from websockets import ConnectionClosedOK
 from workbench_web_helper import WorkbenchWebHelper
 
 from home_workbench.database import LoggingDatabase, Measurement
@@ -21,7 +22,12 @@ from home_workbench.workbench_helper import WorkbenchHelper
 
 
 app = FastAPI()
-origins = ["http://localhost", "http://localhost:8080"]
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+    "http://192.168.1.51",
+    "http://192.168.1.51:8080",
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -58,7 +64,10 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        try:
+            self.active_connections.remove(websocket)
+        except ValueError:
+            print("WebSocket was already removed")
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -92,7 +101,7 @@ async def channel_status_endpoint(websocket: WebSocket):
             data = await websocket.receive_json()
             print(data)
 
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, ConnectionClosedOK):
         measurements_manager.disconnect(websocket)
 
 
@@ -123,7 +132,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             await asyncio.sleep(1)
 
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, ConnectionClosedOK):
         measurements_manager.disconnect(websocket)
 
 

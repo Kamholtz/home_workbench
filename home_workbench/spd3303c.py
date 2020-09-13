@@ -81,6 +81,9 @@ class SPD3303Status:
             other.channel_2_state,
         )
 
+    def __repr__(self):
+        return f"{self.channels_mode}, \nch1: {self.channel_1_supply_mode} {self.channel_1_state}, \nch2: {self.channel_2_supply_mode} {self.channel_2_state}"
+
 
 class SPD3303CChannel:  # pragma: no cover
     def __init__(self, instrument, channel: int):
@@ -133,7 +136,7 @@ class SPD3303C:  # pragma: no cover
     # rm: ResourceManager
     channel_1: SPD3303CChannel
     channel_2: SPD3303CChannel
-    channel_3: SPD3303CChannel
+    # channel_3: SPD3303CChannel
 
     def __init__(self):
         self.rm = pyvisa.ResourceManager()
@@ -142,7 +145,7 @@ class SPD3303C:  # pragma: no cover
         self.inst = self.rm.open_resource(res_to_use)
         self.inst.write_termination = "\n"  # Modify termination character
         self.inst.read_termination = "\n"  # Modify termination character
-        self.inst.query_delay = 2
+        self.inst.query_delay = 1
 
         self.channel_1 = SPD3303CChannel(self.inst, 1)
         self.channel_2 = SPD3303CChannel(self.inst, 2)
