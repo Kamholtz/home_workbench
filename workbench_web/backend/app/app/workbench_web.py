@@ -88,12 +88,6 @@ async def channel_status_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             print(data)
-            # Get the current channel status and send it
-            # data = await websocket.receive_text()
-            # if LAST_STATUS_PAYLOAD is not None:
-            #     await websocket.send_json(LAST_STATUS_PAYLOAD)
-
-            # await asyncio.sleep(1)
 
     except WebSocketDisconnect:
         measurements_manager.disconnect(websocket)
@@ -141,24 +135,24 @@ async def read_power_supply_and_insert() -> None:
         return
 
     status = ps.status
-    payload = [
-        {
-            "channel": 1,
-            "supply_mode": status.channel_1_supply_mode.value,
-            "state": status.channel_1_state.value,
-        },
-        {
-            "channel": 2,
-            "supply_mode": status.channel_2_supply_mode.value,
-            "state": status.channel_2_state.value,
-        },
-    ]
 
     if LAST_STATUS is None or status != LAST_STATUS:
+        payload = [
+            {
+                "channel": 1,
+                "supply_mode": status.channel_1_supply_mode.value,
+                "state": status.channel_1_state.value,
+            },
+            {
+                "channel": 2,
+                "supply_mode": status.channel_2_supply_mode.value,
+                "state": status.channel_2_state.value,
+            },
+        ]
+
         await channel_status_manager.broadcast_json(payload)
         LAST_STATUS = status
         LAST_STATUS_PAYLOAD = payload
-        # await channel_status_manager.broadcast_json(payload)
 
     channels: List[SPD3303CChannel] = [ps.channel_1]
 

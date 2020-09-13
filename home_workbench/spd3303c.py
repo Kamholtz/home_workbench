@@ -97,6 +97,24 @@ class SPD3303CChannel:  # pragma: no cover
         resp = self.inst.query(f"MEAS:CURR? CH{self.channel}")
         return float(resp)
 
+    @property
+    def source_voltage(self) -> float:
+        resp = self.inst.query(f"CH{self.channel}:VOLT?")
+        return float(resp)
+
+    @source_voltage.setter
+    def source_voltage(self, value):
+        self.inst.write(f"CH{self.channel}:VOLT {value}")
+
+    @property
+    def source_current(self) -> float:
+        resp = self.inst.query(f"CH{self.channel}:CURR?")
+        return float(resp)
+
+    @source_current.setter
+    def source_current(self, value):
+        self.inst.write(f"CH{self.channel}:CURR {value}")
+
     def select(self) -> None:
         time.sleep(2)
         self.inst.write(f"INST CH{self.channel}")
@@ -148,6 +166,11 @@ if __name__ == "__main__":
     print(f"IDN: {ps.idn}")
     ps.channel_2.on()
     ps.channel_2.select()
+    ps.channel_1.source_current = 0.5
+    time.sleep(1)
+    ps.channel_1.source_voltage = 2
+    print(f"SOURCE VOLTAGE: {ps.channel_1.source_voltage}V")
+    print(f"SOURCE CURRENT: {ps.channel_1.source_current}A")
     print(f"STATUS: {ps.status}")
     print(f"VOLTAGE: {ps.channel_1.voltage}V")
     print(f"CURRENT: {ps.channel_1.current}V")

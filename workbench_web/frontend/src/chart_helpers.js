@@ -41,7 +41,7 @@ function PowerSupplyChart() {
 				backgroundColor: this.color(window.chartColors.red).alpha(0.5).rgbString(),
 				borderColor: window.chartColors.red,
 				fill: false,
-				data: [],
+				data: []
 			}, {
 				label: 'Current',
 				backgroundColor: this.color(window.chartColors.blue).alpha(0.5).rgbString(),
