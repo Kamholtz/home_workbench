@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi_utils.tasks import repeat_every
-from websockets import ConnectionClosedOK
+from websockets import ConnectionClosed, ConnectionClosedError, ConnectionClosedOK
 from workbench_web_helper import WorkbenchWebHelper
 
 from home_workbench.database import LoggingDatabase, Measurement
@@ -101,7 +101,12 @@ async def channel_status_endpoint(websocket: WebSocket):
             data = await websocket.receive_json()
             print(data)
 
-    except (WebSocketDisconnect, ConnectionClosedOK):
+    except (
+        WebSocketDisconnect,
+        ConnectionClosedOK,
+        ConnectionClosed,
+        ConnectionClosedError,
+    ):
         measurements_manager.disconnect(websocket)
 
 
@@ -132,12 +137,17 @@ async def websocket_endpoint(websocket: WebSocket):
 
             await asyncio.sleep(1)
 
-    except (WebSocketDisconnect, ConnectionClosedOK):
+    except (
+        WebSocketDisconnect,
+        ConnectionClosedOK,
+        ConnectionClosed,
+        ConnectionClosedError,
+    ):
         measurements_manager.disconnect(websocket)
 
 
 @app.on_event("startup")
-@repeat_every(seconds=3)
+@repeat_every(seconds=3, raise_exceptions=True)
 async def read_power_supply_and_insert() -> None:
     global ps
     global LAST_STATUS_PAYLOAD, LAST_STATUS, LAST_SOURCE_CURRENTS, LAST_SOURCE_VOLTAGES
