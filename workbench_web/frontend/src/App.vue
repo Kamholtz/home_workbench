@@ -46,14 +46,14 @@ export default {
     },
     created: async function() {
         var thisRef = this;
-        const gResponse = await fetch("http://localhost:5000/greeting");
+        const gResponse = await fetch("http://192.168.1.51:5000/greeting");
         const gObject = await gResponse.json();
         console.log("greeting: " + gObject.greeting);
         this.flaskGreeting = gObject.greeting;
 
         // https://markus.oberlehner.net/blog/distributed-vue-applications-pushing-content-and-component-updates-to-the-client/
 
-        const channelStatusWs = new WebSocket("ws://localhost:5000/channelstatus");
+        const channelStatusWs = new WebSocket("ws://192.168.1.51:5000/channelstatus");
         channelStatusWs.onmessage = function (event) {
             const status = JSON.parse(event.data);
             thisRef.updatePowerSupplyCards(status);

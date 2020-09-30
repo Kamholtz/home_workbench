@@ -27,6 +27,10 @@ origins = [
     "http://localhost:8080",
     "http://192.168.1.51",
     "http://192.168.1.51:8080",
+    "http://192.168.1.20",
+    "http://192.168.1.20:8080",
+    "http://192.168.1.*",
+    "http://192.168.1.*:8080",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -234,5 +238,10 @@ def insert_fake_power_supply_data() -> None:
 
 if __name__ == "__main__":
     uvicorn.run(
-        "workbench_web:app", host="localhost", port=5000, reload=True, log_level="debug"
+        # "workbench_web:app", host="localhost", port=5000, reload=True, log_level="debug"
+        "workbench_web:app",
+        host="0.0.0.0",
+        port=5000,
+        reload=True,
+        log_level="debug",
     )
