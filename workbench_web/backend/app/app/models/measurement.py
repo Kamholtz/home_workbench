@@ -1,4 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
+from db.database import Base
 
 from sqlalchemy import (  # MetaData,; Sequence,; String,; Table,
     Column,
@@ -8,7 +8,6 @@ from sqlalchemy import (  # MetaData,; Sequence,; String,; Table,
 )
 
 # https://itnext.io/sqlalchemy-orm-connecting-to-postgresql-from-scratch-create-fetch-update-and-delete-a86bc81333dc
-Base = declarative_base()
 
 
 class Measurement(Base):

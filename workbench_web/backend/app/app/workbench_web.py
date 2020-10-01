@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 import uvicorn
-from db.database import LoggingDatabase, Measurement
+from crud.measurement import LoggingDatabase
 from db.spd3303c import SPD3303C, SPD3303CChannel
 from db.workbench_helper import WorkbenchHelper
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
@@ -11,13 +11,12 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi_utils.tasks import repeat_every
+from models.measurement import Measurement
 from schemas.measurement import MeasurementCreate
 from websockets import ConnectionClosed, ConnectionClosedError, ConnectionClosedOK
 from workbench_web_helper import WorkbenchWebHelper
 
 # from fastapi.templating import Jinja2Templates
-
-
 # https://github.com/encode/uvicorn/issues/358
 
 
