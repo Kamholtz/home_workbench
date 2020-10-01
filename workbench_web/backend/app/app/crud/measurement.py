@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from typing import List
 
+import models.measurement
+import schemas.measurement
 import sqlalchemy as db
 from db.database import Base
 from db.workbench_helper import WorkbenchHelper
@@ -38,10 +40,15 @@ class LoggingDatabase:
 
         return query_data
 
-    def insert_measurement(self, measurement: Measurement):
+    def insert_measurement(
+        self, measurement: schemas.measurement.MeasurementCreate
+    ) -> models.measurement.Measurement:
         session = Session(bind=self.connection)
-        session.add(measurement)
+        db_measurement = models.measurement.Measurement(**measurement.dict())
+        session.add(db_measurement)
         session.commit()
+
+        return db_measurement
 
     def get_measurements_since_date(self, since_date: datetime) -> List[Measurement]:
         session = Session(bind=self.connection)
