@@ -1,19 +1,19 @@
 import asyncio
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 import uvicorn
+from db.database import LoggingDatabase, Measurement
+from db.spd3303c import SPD3303C, SPD3303CChannel
+from db.workbench_helper import WorkbenchHelper
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi_utils.tasks import repeat_every
+from schemas.measurement import MeasurementCreate
 from websockets import ConnectionClosed, ConnectionClosedError, ConnectionClosedOK
 from workbench_web_helper import WorkbenchWebHelper
-
-from home_workbench.database import LoggingDatabase, Measurement
-from home_workbench.spd3303c import SPD3303C, SPD3303CChannel
-from home_workbench.workbench_helper import WorkbenchHelper
 
 # from fastapi.templating import Jinja2Templates
 
@@ -40,7 +40,7 @@ app.add_middleware(
 # templates = Jinja2Templates(directory=templates_path)
 
 
-ps: SPD3303C = WorkbenchWebHelper.get_power_supply()
+ps: Optional[SPD3303C] = WorkbenchWebHelper.get_power_supply()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
@@ -53,6 +53,18 @@ async def get_greeting():
 def read_root(request: Request):
     index_path = "workbench_web/dist/index.html"
     return FileResponse(index_path, media_type="text/html")
+
+
+@app.post("/measurements")
+async def create_measurement(measurement: MeasurementCreate):
+    meas = Measurement()
+    meas.i_device_id = measurement.i_device_id
+    meas.i_channel_id = measurement.i_channel_id
+    meas.i_measurement_type = measurement.i_measurement_type
+    meas.i_value = measurement.i_value
+    meas.d_datetime = measurement.d_datetime
+    logging_database.insert_measurement(meas)
+    return measurement
 
 
 class ConnectionManager:
@@ -95,7 +107,9 @@ LAST_SOURCE_CURRENTS: List[float] = [0] * 2
 async def channel_status_endpoint(websocket: WebSocket):
 
     await channel_status_manager.connect(websocket)
-    await websocket.send_json(LAST_STATUS_PAYLOAD)
+    if LAST_STATUS_PAYLOAD is not None:
+        await websocket.send_json(LAST_STATUS_PAYLOAD)
+
     try:
         while True:
             data = await websocket.receive_json()

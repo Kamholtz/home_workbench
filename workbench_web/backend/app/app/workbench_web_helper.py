@@ -1,9 +1,8 @@
 import os
 from typing import Optional
 
+from db.spd3303c import SPD3303C
 from pyvisa.errors import VisaIOError
-
-from home_workbench.spd3303c import SPD3303C
 
 
 class WorkbenchWebHelper:

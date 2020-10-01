@@ -1,8 +1,8 @@
 from datetime import timedelta
 from typing import List
 
-from home_workbench.database import LoggingDatabase, Measurement
-from home_workbench.workbench_helper import WorkbenchHelper
+from db.database import LoggingDatabase, Measurement
+from db.workbench_helper import WorkbenchHelper
 
 
 def test_create_tables() -> None:

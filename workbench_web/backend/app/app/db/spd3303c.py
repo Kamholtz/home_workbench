@@ -145,7 +145,7 @@ class SPD3303C:  # pragma: no cover
         self.inst = self.rm.open_resource(res_to_use)
         self.inst.write_termination = "\n"  # Modify termination character
         self.inst.read_termination = "\n"  # Modify termination character
-        self.inst.query_delay = 1
+        self.inst.query_delay = 2
 
         self.channel_1 = SPD3303CChannel(self.inst, 1)
         self.channel_2 = SPD3303CChannel(self.inst, 2)
