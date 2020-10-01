@@ -55,15 +55,8 @@ def read_root(request: Request):
 
 
 @app.post("/measurements")
-async def create_measurement(measurement: MeasurementCreate):
-    meas = Measurement()
-    meas.i_device_id = measurement.i_device_id
-    meas.i_channel_id = measurement.i_channel_id
-    meas.i_measurement_type = measurement.i_measurement_type
-    meas.i_value = measurement.i_value
-    meas.d_datetime = measurement.d_datetime
-    logging_database.insert_measurement(meas)
-    return measurement
+async def create_measurement(measurement: MeasurementCreate) -> Measurement:
+    return logging_database.insert_measurement(measurement)
 
 
 class ConnectionManager:
