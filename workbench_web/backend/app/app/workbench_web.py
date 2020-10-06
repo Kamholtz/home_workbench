@@ -210,20 +210,22 @@ async def read_power_supply_and_insert() -> None:
     channels = [ps.channel_1]
 
     for c in channels:
-        meas = Measurement()
-        meas.i_device_id = 1
-        meas.i_channel_id = c.channel
-        meas.i_measurement_type = 1
-        meas.i_value = c.voltage
-        meas.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+        meas = MeasurementCreate(
+            i_device_id=1,
+            i_channel_id=c.channel,
+            i_measurement_type=1,
+            i_value=c.voltage,
+            d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
+        )
         logging_database.insert_measurement(meas)
 
-        meas = Measurement()
-        meas.i_device_id = 1
-        meas.i_channel_id = c.channel
-        meas.i_measurement_type = 2
-        meas.i_value = c.current
-        meas.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
+        meas = MeasurementCreate(
+            i_device_id=1,
+            i_channel_id=c.channel,
+            i_measurement_type=2,
+            i_value=c.current,
+            d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
+        )
         logging_database.insert_measurement(meas)
 
 
