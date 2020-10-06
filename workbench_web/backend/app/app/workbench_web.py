@@ -24,8 +24,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://192.168.1.51",
-    "http://192.168.1.51:8080",
+    "http://192.168.15.10",
+    "http://192.168.15.10:8080",
     "http://192.168.1.20",
     "http://192.168.1.20:8080",
     "http://192.168.1.*",
@@ -62,7 +62,7 @@ def read_root(request: Request):
 async def create_measurement(measurement: MeasurementCreate) -> Measurement:
 
     if measurement.d_datetime is None:
-        measurement.d_datetime = datetime.now()
+        measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
 
     print(measurement)
     return logging_database.insert_measurement(measurement)
@@ -234,24 +234,26 @@ def insert_fake_power_supply_data() -> None:
     if ps is not None:
         return
 
-    new_measurement: Measurement = Measurement()
-    new_measurement.i_measurement_type = 1
-    new_measurement.i_device_id = 1
-    new_measurement.i_channel_id = 1
-    new_measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
-    new_measurement.i_value = WorkbenchHelper.get_float_with_variation(
-        mid_point=5, max_variation=0.25, decimal_places=1
+    new_measurement: MeasurementCreate = MeasurementCreate(
+        i_measurement_type=1,
+        i_device_id=1,
+        i_channel_id=1,
+        d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
+        i_value=WorkbenchHelper.get_float_with_variation(
+            mid_point=5, max_variation=0.25, decimal_places=1
+        ),
     )
 
     logging_database.insert_measurement(new_measurement)
 
-    new_measurement = Measurement()
-    new_measurement.i_measurement_type = 2
-    new_measurement.i_device_id = 1
-    new_measurement.i_channel_id = 1
-    new_measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
-    new_measurement.i_value = WorkbenchHelper.get_float_with_variation(
-        mid_point=0.100, max_variation=0.050, decimal_places=3
+    new_measurement = MeasurementCreate(
+        i_measurement_type=2,
+        i_device_id=1,
+        i_channel_id=1,
+        d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
+        i_value=WorkbenchHelper.get_float_with_variation(
+            mid_point=0.100, max_variation=0.050, decimal_places=3
+        ),
     )
 
     logging_database.insert_measurement(new_measurement)
