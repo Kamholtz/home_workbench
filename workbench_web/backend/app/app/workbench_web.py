@@ -60,6 +60,11 @@ def read_root(request: Request):
 
 @app.post("/measurements")
 async def create_measurement(measurement: MeasurementCreate) -> Measurement:
+
+    if measurement.d_datetime is None:
+        measurement.d_datetime = datetime.now()
+
+    print(measurement)
     return logging_database.insert_measurement(measurement)
 
 
