@@ -1,18 +1,31 @@
 <template>
   <div id="app">
-    <div style="height: 50vh; width: inherit">
-      <canvas id="myChart"></canvas>
-    </div>
     <v-app id="inspire">
-      <v-container class="grey lighten-5">
-        <v-row no-gutters>
-          <PowerSupplyCard
-            v-for="item in powersupplies"
-            v-bind:powersupply="item"
-            v-bind:key="item.id"
-          ></PowerSupplyCard>
-        </v-row>
-      </v-container>
+      <v-card>
+        <v-tabs v-model="tab" align-with-title>
+          <v-tab>Power Supply</v-tab>
+          <v-tab>Solar Monitor</v-tab>
+        </v-tabs>
+      </v-card>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-card flat>
+            <div style="height: 50vh; width: inherit">
+              <canvas id="myChart"></canvas>
+            </div>
+            <v-container class="grey lighten-5">
+              <v-row no-gutters>
+                <PowerSupplyCard
+                  v-for="item in powersupplies"
+                  v-bind:powersupply="item"
+                  v-bind:key="item.id"
+                ></PowerSupplyCard>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
     </v-app>
   </div>
 </template>
@@ -28,6 +41,7 @@ export default {
   },
   data: function () {
     return {
+      tab: null,
       powersupplies: [
         {
           id: 1,
