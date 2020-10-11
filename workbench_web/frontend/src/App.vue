@@ -25,6 +25,17 @@
             </v-container>
           </v-card>
         </v-tab-item>
+        <v-tab-item>
+          <v-card flat>
+            <div style="height: 75vh; width: inherit">
+              <SolarMonitorChart
+                :chart-data="solarchartdata"
+                :options="solarchartoptions"
+              >
+              </SolarMonitorChart>
+            </div>
+          </v-card>
+        </v-tab-item>
       </v-tabs-items>
     </v-app>
   </div>
@@ -32,12 +43,14 @@
 
 <script>
 import PowerSupplyCard from "./components/PowerSupplyCard.vue";
+import SolarMonitorChart from "./components/SolarMonitorChart.vue";
 import PowerSupplyChart from "@/chart_helpers.js";
 
 export default {
   name: "App",
   components: {
     PowerSupplyCard,
+    SolarMonitorChart,
   },
   data: function () {
     return {
@@ -56,6 +69,15 @@ export default {
           state: "???",
         },
       ],
+      solarchartdata: {},
+      solarchartoptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        title: {
+          display: true,
+          text: "Solar Monitor",
+        },
+      },
     };
   },
   created: async function () {
