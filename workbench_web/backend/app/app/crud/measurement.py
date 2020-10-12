@@ -50,17 +50,21 @@ class LoggingDatabase:
 
         return db_measurement
 
-    def get_measurements_since_date(self, since_date: datetime) -> List[Measurement]:
+    def get_measurements_since_date(
+        self, since_date: datetime, device_id: int
+    ) -> List[Measurement]:
         session = Session(bind=self.connection)
         measurements: List[Measurement] = session.query(Measurement).filter(
             Measurement.d_datetime > since_date
-        ).order_by(Measurement.d_datetime.asc()).all()
+        ).filter(Measurement.i_device_id == device_id).order_by(
+            Measurement.d_datetime.asc()
+        ).all()
 
         return measurements
 
-    def get_measurements_in_last_timedelta(self, period: timedelta):
+    def get_measurements_in_last_timedelta(self, period: timedelta, device_id: int):
         since_date = WorkbenchHelper.get_datetime_now_to_nearest_sec() - period
-        return self.get_measurements_since_date(since_date)
+        return self.get_measurements_since_date(since_date, device_id)
 
 
 if __name__ == "__main__":

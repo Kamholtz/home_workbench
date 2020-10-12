@@ -53,7 +53,7 @@ def test_measurements_get_all_measurements() -> None:
 def test_measurements_get_measurements_in_last_timedelta() -> None:
     db = LoggingDatabase()
     measurements: List[Measurement] = db.get_measurements_in_last_timedelta(
-        period=timedelta(minutes=60)
+        period=timedelta(minutes=60), device_id=1
     )
 
     assert len(measurements) > 0

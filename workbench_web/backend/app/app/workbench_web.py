@@ -96,6 +96,7 @@ class ConnectionManager:
 
 measurements_manager: ConnectionManager = ConnectionManager()
 channel_status_manager: ConnectionManager = ConnectionManager()
+solar_measurements_manager: ConnectionManager = ConnectionManager()
 
 
 LAST_STATUS = None
@@ -125,6 +126,27 @@ async def channel_status_endpoint(websocket: WebSocket):
         measurements_manager.disconnect(websocket)
 
 
+@app.websocket("/solarmeasurements")
+async def solar_measurement_endpoint(websocket: WebSocket):
+    await solar_measurements_manager.connect(websocket)
+
+    latest_measurements: List[
+        Measurement
+    ] = logging_database.get_measurements_in_last_timedelta(timedelta(14), 2)
+
+    if latest_measurements:
+        payload = [
+            {
+                "time": jsonable_encoder(m.d_datetime),
+                "value": m.i_value,
+                "measurement_type": m.i_measurement_type,
+                "channel": 2,
+            }
+            for m in latest_measurements
+        ]
+        await websocket.send_json(payload)
+
+
 @app.websocket("/measurements")
 async def websocket_endpoint(websocket: WebSocket):
     await measurements_manager.connect(websocket)
@@ -134,7 +156,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             latest_measurements: List[
                 Measurement
-            ] = logging_database.get_measurements_since_date(last_update_time)
+            ] = logging_database.get_measurements_since_date(last_update_time, 1)
 
             if latest_measurements:
                 payload = [

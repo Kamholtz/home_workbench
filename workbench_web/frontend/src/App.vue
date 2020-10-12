@@ -95,6 +95,14 @@ export default {
       thisRef.updatePowerSupplyCards(status);
       console.log("channelStatusWs.onmessage -> status", status);
     };
+
+    const solarMeasurementsWs = new WebSocket(
+      "ws://172.18.0.1:5000/solarmeasurements"
+    );
+    solarMeasurementsWs.onmessage = function (event) {
+      const status = JSON.parse(event.data);
+      console.log("solarMeasurementsWs.onmessage -> status", status);
+    };
   },
   methods: {
     updatePowerSupplyCards(statusData) {
