@@ -77,6 +77,50 @@ export default {
           display: true,
           text: "Solar Monitor",
         },
+        scales: {
+          xAxes: [
+            {
+              type: "time",
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "Date",
+              },
+              ticks: {
+                major: {
+                  fontStyle: "bold",
+                  fontColor: "#FF0000",
+                },
+                time: {
+                  unit: "second",
+                },
+              },
+            },
+          ],
+          yAxes: [
+            {
+              display: true,
+              position: "left",
+              scaleLabel: {
+                display: true,
+                labelString: "Voltage (V)",
+              },
+              id: "y-axis-voltage",
+            },
+            {
+              display: true,
+              position: "right",
+              scaleLabel: {
+                display: true,
+                labelString: "Current (A)",
+              },
+              ticks: {
+                suggestedMax: 0.2,
+              },
+              id: "y-axis-current",
+            },
+          ],
+        },
       },
     };
   },
