@@ -68,7 +68,7 @@ async def create_measurement(measurement: MeasurementCreate) -> Measurement:
             "time": jsonable_encoder(measurement.d_datetime),
             "value": measurement.i_value,
             "measurement_type": measurement.i_measurement_type,
-            "channel": 2,
+            "channel": measurement.i_channel_id,
         }
     ]
     solar_measurements_manager.broadcast_json(payload)
@@ -139,9 +139,9 @@ async def solar_measurement_endpoint(websocket: WebSocket):
     await solar_measurements_manager.connect(websocket)
 
     # Get recent measurements
-    latest_measurements: List[
-        Measurement
-    ] = logging_database.get_measurements_in_last_timedelta(timedelta(21), 2)
+    latest_measurements: List[Measurement] = logging_database.get_measurements_limit(
+        2, 20
+    )
 
     # Send the recent measurements
     if latest_measurements:
@@ -150,7 +150,7 @@ async def solar_measurement_endpoint(websocket: WebSocket):
                 "time": jsonable_encoder(m.d_datetime),
                 "value": m.i_value,
                 "measurement_type": m.i_measurement_type,
-                "channel": 2,
+                "channel": m.i_channel_id,
             }
             for m in latest_measurements
         ]
@@ -278,8 +278,8 @@ async def read_power_supply_and_insert() -> None:
         logging_database.insert_measurement(meas)
 
 
-@app.on_event("startup")
-@repeat_every(seconds=5)
+# @app.on_event("startup")
+# @repeat_every(seconds=5)
 def insert_fake_power_supply_data() -> None:
 
     if ps is not None:

@@ -47,8 +47,17 @@ class LoggingDatabase:
         db_measurement = models.measurement.Measurement(**measurement.dict())
         session.add(db_measurement)
         session.commit()
+        session.refresh(db_measurement)
 
         return db_measurement
+
+    def get_measurements_limit(self, device_id: int, limit: int) -> List[Measurement]:
+        session = Session(bind=self.connection)
+        measurements: List[Measurement] = session.query(Measurement).filter(
+            Measurement.i_device_id == device_id
+        ).order_by(Measurement.d_datetime.desc()).limit(limit).all()
+
+        return measurements
 
     def get_measurements_since_date(
         self, since_date: datetime, device_id: int
