@@ -24,8 +24,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://172.20.96.1",
-    "http://172.20.96.1:8080",
+    "http://192.168.1.15",
+    "http://192.168.1.15:8080",
     "http://192.168.1.20",
     "http://192.168.1.20:8080",
     "http://192.168.1.*",
@@ -141,7 +141,7 @@ async def solar_measurement_endpoint(websocket: WebSocket):
     # Get recent measurements
     latest_measurements: List[
         Measurement
-    ] = logging_database.get_measurements_in_last_timedelta(timedelta(14), 2)
+    ] = logging_database.get_measurements_in_last_timedelta(timedelta(21), 2)
 
     # Send the recent measurements
     if latest_measurements:

@@ -86,20 +86,12 @@ export default {
     // https://markus.oberlehner.net/blog/distributed-vue-applications-pushing-content-and-component-updates-to-the-client/
 
     const channelStatusWs = new WebSocket(
-      "ws://172.20.96.1:5000/channelstatus"
+      "ws://192.168.1.15:5000/channelstatus"
     );
     channelStatusWs.onmessage = function (event) {
       const status = JSON.parse(event.data);
       thisRef.updatePowerSupplyCards(status);
       console.log("channelStatusWs.onmessage -> status", status);
-    };
-
-    const solarMeasurementsWs = new WebSocket(
-      "ws://172.20.96.1:5000/solarmeasurements"
-    );
-    solarMeasurementsWs.onmessage = function (event) {
-      const status = JSON.parse(event.data);
-      console.log("solarMeasurementsWs.onmessage -> status", status);
     };
   },
   methods: {
@@ -112,6 +104,40 @@ export default {
       this.powersupplies[1].voltage = statusData[1].voltage;
       this.powersupplies[1].current = statusData[1].current;
     },
+    initSolarChartData() {
+      this.solarchartdata = {
+        datasets: [
+          {
+            label: "Voltage",
+            backgroundColor: "orange",
+            borderColor: "orange",
+            fill: false,
+            data: [],
+          },
+        ],
+      };
+    },
+  },
+  mounted() {
+    var thisRef = this;
+    this.initSolarChartData();
+
+    const solarMeasurementsWs = new WebSocket(
+      "ws://192.168.1.15:5000/solarmeasurements"
+    );
+    solarMeasurementsWs.onmessage = function (event) {
+      const measurements = JSON.parse(event.data);
+      console.log("solarMeasurementsWs.onmessage -> status", measurements);
+
+      measurements.forEach((m) => {
+        var data = {
+          x: m.time,
+          y: m.value,
+        };
+
+        thisRef.solarchartdata.datasets[m.measurement_type - 1].data.push(data);
+      });
+    };
   },
 };
 
