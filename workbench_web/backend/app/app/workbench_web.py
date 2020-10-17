@@ -24,8 +24,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://172.18.0.1",
-    "http://172.18.0.1:8080",
+    "http://172.20.96.1",
+    "http://172.20.96.1:8080",
     "http://192.168.1.20",
     "http://192.168.1.20:8080",
     "http://192.168.1.*",
@@ -47,11 +47,6 @@ ps: Optional[SPD3303C] = WorkbenchWebHelper.get_power_supply()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
-@app.get("/greeting")
-async def get_greeting():
-    return {"greeting": "Hello World"}
-
-
 @app.get("/")
 def read_root(request: Request):
     index_path = "workbench_web/dist/index.html"
@@ -61,10 +56,23 @@ def read_root(request: Request):
 @app.post("/measurements")
 async def create_measurement(measurement: MeasurementCreate) -> Measurement:
 
+    global solar_measurements_manager
+
     if measurement.d_datetime is None:
         measurement.d_datetime = WorkbenchHelper.get_datetime_now_to_nearest_sec()
 
     print(measurement)
+
+    payload = [
+        {
+            "time": jsonable_encoder(measurement.d_datetime),
+            "value": measurement.i_value,
+            "measurement_type": measurement.i_measurement_type,
+            "channel": 2,
+        }
+    ]
+    solar_measurements_manager.broadcast_json(payload)
+
     return logging_database.insert_measurement(measurement)
 
 
@@ -130,10 +138,12 @@ async def channel_status_endpoint(websocket: WebSocket):
 async def solar_measurement_endpoint(websocket: WebSocket):
     await solar_measurements_manager.connect(websocket)
 
+    # Get recent measurements
     latest_measurements: List[
         Measurement
     ] = logging_database.get_measurements_in_last_timedelta(timedelta(14), 2)
 
+    # Send the recent measurements
     if latest_measurements:
         payload = [
             {
@@ -145,6 +155,21 @@ async def solar_measurement_endpoint(websocket: WebSocket):
             for m in latest_measurements
         ]
         await websocket.send_json(payload)
+
+    # Wait for incoming data
+    # Outgoing data is sent when new solar data is received
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print(data)
+
+    except (
+        WebSocketDisconnect,
+        ConnectionClosedOK,
+        ConnectionClosed,
+        ConnectionClosedError,
+    ):
+        measurements_manager.disconnect(websocket)
 
 
 @app.websocket("/measurements")
@@ -189,45 +214,47 @@ async def read_power_supply_and_insert() -> None:
     global ps
     global LAST_STATUS_PAYLOAD, LAST_STATUS, LAST_SOURCE_CURRENTS, LAST_SOURCE_VOLTAGES
     global channel_status_manager
+
     if ps is None:
         ps = WorkbenchWebHelper.get_power_supply()
         return
 
-    status = ps.status
-
     channels: List[SPD3303CChannel] = [ps.channel_1, ps.channel_2]
 
-    source_voltages = [c.source_voltage for c in channels]
-    source_currents = [c.source_current for c in channels]
+    # Only read the status if there are connections to send to
+    if len(channel_status_manager.active_connections) > 0:
+        status = ps.status
+        source_voltages = [c.source_voltage for c in channels]
+        source_currents = [c.source_current for c in channels]
 
-    if (
-        LAST_STATUS is None
-        or status != LAST_STATUS
-        or source_voltages != LAST_SOURCE_VOLTAGES
-        or source_currents != LAST_SOURCE_CURRENTS
-    ):
-        payload = [
-            {
-                "channel": 1,
-                "supply_mode": status.channel_1_supply_mode.value,
-                "state": status.channel_1_state.value,
-                "voltage": source_voltages[0],
-                "current": source_currents[0],
-            },
-            {
-                "channel": 2,
-                "supply_mode": status.channel_2_supply_mode.value,
-                "state": status.channel_2_state.value,
-                "voltage": source_voltages[1],
-                "current": source_currents[1],
-            },
-        ]
+        if (
+            LAST_STATUS is None
+            or status != LAST_STATUS
+            or source_voltages != LAST_SOURCE_VOLTAGES
+            or source_currents != LAST_SOURCE_CURRENTS
+        ):
+            payload = [
+                {
+                    "channel": 1,
+                    "supply_mode": status.channel_1_supply_mode.value,
+                    "state": status.channel_1_state.value,
+                    "voltage": source_voltages[0],
+                    "current": source_currents[0],
+                },
+                {
+                    "channel": 2,
+                    "supply_mode": status.channel_2_supply_mode.value,
+                    "state": status.channel_2_state.value,
+                    "voltage": source_voltages[1],
+                    "current": source_currents[1],
+                },
+            ]
 
-        await channel_status_manager.broadcast_json(payload)
-        LAST_STATUS = status
-        LAST_STATUS_PAYLOAD = payload
-        LAST_SOURCE_VOLTAGES = source_voltages
-        LAST_SOURCE_CURRENTS = source_currents
+            await channel_status_manager.broadcast_json(payload)
+            LAST_STATUS = status
+            LAST_STATUS_PAYLOAD = payload
+            LAST_SOURCE_VOLTAGES = source_voltages
+            LAST_SOURCE_CURRENTS = source_currents
 
     channels = [ps.channel_1]
 

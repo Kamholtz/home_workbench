@@ -82,14 +82,12 @@ export default {
   },
   created: async function () {
     var thisRef = this;
-    const gResponse = await fetch("http://172.18.0.1:5000/greeting");
-    const gObject = await gResponse.json();
-    console.log("greeting: " + gObject.greeting);
-    this.flaskGreeting = gObject.greeting;
 
     // https://markus.oberlehner.net/blog/distributed-vue-applications-pushing-content-and-component-updates-to-the-client/
 
-    const channelStatusWs = new WebSocket("ws://172.18.0.1:5000/channelstatus");
+    const channelStatusWs = new WebSocket(
+      "ws://172.20.96.1:5000/channelstatus"
+    );
     channelStatusWs.onmessage = function (event) {
       const status = JSON.parse(event.data);
       thisRef.updatePowerSupplyCards(status);
@@ -97,7 +95,7 @@ export default {
     };
 
     const solarMeasurementsWs = new WebSocket(
-      "ws://172.18.0.1:5000/solarmeasurements"
+      "ws://172.20.96.1:5000/solarmeasurements"
     );
     solarMeasurementsWs.onmessage = function (event) {
       const status = JSON.parse(event.data);
