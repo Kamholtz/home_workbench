@@ -3,7 +3,8 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [{
+    "configurations": [
+        {
             "type": "chrome",
             "request": "launch",
             "name": "vuejs: chrome",
@@ -15,11 +16,18 @@
             }
         },
         {
+            "name": "web poetry py module",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/workbench_web/backend/app/app",
+            "module": "workbench_web"
+        },
+        {
             "name": "web py module",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/workbench_web/backend/app/app",
-            "module": "workbench_web",
+            "module": "workbench_web"
         },
         {
             "name": "Python: Current File",
@@ -34,14 +42,31 @@
             "request": "launch",
             "module": "home_workbench",
             "cwd": "${workspaceFolder}\\home_workbench",
-            "args": ["5"]
+            "args": [
+                "5"
+            ]
         },
         {
             "name": "spd3303c module",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}\\home_workbench",
-            "module": "spd3303c",
+            "module": "spd3303c"
+        },
+        {
+            "name": "Docker: Python - General",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "general"
+            }
         }
     ]
 }

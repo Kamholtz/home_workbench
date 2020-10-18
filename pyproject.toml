@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "home_workbench"
+version = "0.1.0"
+description = "Provide computer interface for various tools and sensors"
+authors = ["Carl <Carl.Kamholtz@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.61.1"
+jinja2 = "*"
+uvicorn = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
+fastapi-utils = "*"
+sqlalchemy-stubs = "*"
+aiofiles = "*"
+pyvisa = "^1.11.1"
+websockets = "^8.1"
+
+[tool.poetry.dev-dependencies]
+black = "==19.3b0"
+flake8 = "*"
+isort = "*"
+mypy = "*"
+pre-commit = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
