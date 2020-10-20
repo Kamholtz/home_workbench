@@ -20,7 +20,7 @@ class WorkbenchWebHelper:
         ps = None
         try:
             ps = SPD3303C()
-        except VisaIOError:
+        except (VisaIOError, ValueError):
             ps = None
 
         return ps
