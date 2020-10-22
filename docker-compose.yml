@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  homeworkbench:
-    image: homeworkbench
+  backend:
+    image: backend
     build:
-      context: .
+      context: ./workbench_web/backend
       dockerfile: Dockerfile
