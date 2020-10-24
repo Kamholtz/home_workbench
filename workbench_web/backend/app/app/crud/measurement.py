@@ -9,15 +9,17 @@ from db.workbench_helper import WorkbenchHelper
 from models.measurement import Measurement
 from sqlalchemy.orm import Session
 
+from core.config import settings
 
 class LoggingDatabase:
     # replace the user, password, hostname and database according to your configuration according to your information
     engine = db.create_engine(
-        "postgresql://read_write:simplepass1098@localhost:5432/logging", echo=False
+        settings.SQLALCHEMY_DATABASE_URI, echo=False
     )
 
     def __init__(self):
         self.connection = self.engine.connect()
+        self.create_tables()
 
     def create_tables(self):
         Base.metadata.create_all(self.engine)
