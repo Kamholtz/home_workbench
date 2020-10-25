@@ -13,18 +13,6 @@ services:
     ports:
       - 5431:5432
 
-  backend:
-    image: backend
-    depends_on:
-      - db
-    env_file:
-      - .env
-    build:
-      context: ./workbench_web/backend
-      dockerfile: Dockerfile
-      args:
-        INSTALL_DEV: ${INSTALL_DEV-false}
-
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -40,6 +28,29 @@ services:
       - "db:pgsql-server"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+
+  backend:
+    image: backend
+    depends_on:
+      - db
+    env_file:
+      - .env
+    build:
+      context: ./workbench_web/backend
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+
+  frontend:
+    image: frontend
+    ports:
+      # Expose the nginx server running on container's port 80 to the host's port 80
+      # Note that in the past you have been using "vue-cli-service serve" which uses port 8080 by default
+      - 80:80
+    build:
+      context: ./workbench_web/frontend
+      args:
+        FRONTEND_ENV: ${FRONTEND_ENV-production}
 
 
 

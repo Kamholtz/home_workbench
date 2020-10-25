@@ -278,8 +278,8 @@ async def read_power_supply_and_insert() -> None:
         logging_database.insert_measurement(meas)
 
 
-# @app.on_event("startup")
-# @repeat_every(seconds=5)
+@app.on_event("startup")
+@repeat_every(seconds=5)
 def insert_fake_power_supply_data() -> None:
 
     if ps is not None:
