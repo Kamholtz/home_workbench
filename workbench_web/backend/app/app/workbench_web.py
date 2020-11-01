@@ -24,8 +24,9 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://192.168.1.21",
-    "http://192.168.1.21:8080",
+    "http://localhost",
+    "http://localhost:80",
+    "http://localhost:8080",
     "http://192.168.1.20",
     "http://192.168.1.20:8080",
     "http://192.168.1.*",

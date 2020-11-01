@@ -130,7 +130,7 @@ export default {
     // https://markus.oberlehner.net/blog/distributed-vue-applications-pushing-content-and-component-updates-to-the-client/
 
     const channelStatusWs = new WebSocket(
-      "ws://192.168.1.21:5000/channelstatus"
+      "ws://backend:5000/channelstatus"
     );
     channelStatusWs.onmessage = function (event) {
       const status = JSON.parse(event.data);
@@ -167,7 +167,7 @@ export default {
     this.initSolarChartData();
 
     const solarMeasurementsWs = new WebSocket(
-      "ws://192.168.1.21:5000/solarmeasurements"
+      "ws://backend:5000/solarmeasurements"
     );
     solarMeasurementsWs.onmessage = function (event) {
       const measurements = JSON.parse(event.data);

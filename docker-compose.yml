@@ -31,6 +31,8 @@ services:
 
   backend:
     image: backend
+    ports:
+      - 5000:5000
     depends_on:
       - db
     env_file:
@@ -57,3 +59,7 @@ services:
 volumes:
   app-db-data:
   pgadmin-data:
+
+# networks:
+#   backbone:
+#     driver: bridge
