@@ -48,13 +48,8 @@ ps: Optional[SPD3303C] = WorkbenchWebHelper.get_power_supply()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
-@app.get("/")
-def read_root(request: Request):
-    index_path = "workbench_web/dist/index.html"
-    return FileResponse(index_path, media_type="text/html")
 
-
-@app.post("/measurements")
+@app.post("/api/measurements")
 async def create_measurement(measurement: MeasurementCreate) -> Measurement:
 
     global solar_measurements_manager
@@ -114,7 +109,7 @@ LAST_SOURCE_VOLTAGES: List[float] = [0] * 2
 LAST_SOURCE_CURRENTS: List[float] = [0] * 2
 
 
-@app.websocket("/channelstatus")
+@app.websocket("/api/channelstatus")
 async def channel_status_endpoint(websocket: WebSocket):
 
     await channel_status_manager.connect(websocket)
@@ -135,7 +130,7 @@ async def channel_status_endpoint(websocket: WebSocket):
         measurements_manager.disconnect(websocket)
 
 
-@app.websocket("/solarmeasurements")
+@app.websocket("/api/solarmeasurements")
 async def solar_measurement_endpoint(websocket: WebSocket):
     await solar_measurements_manager.connect(websocket)
 
@@ -173,7 +168,7 @@ async def solar_measurement_endpoint(websocket: WebSocket):
         measurements_manager.disconnect(websocket)
 
 
-@app.websocket("/measurements")
+@app.websocket("/api/measurements")
 async def websocket_endpoint(websocket: WebSocket):
     await measurements_manager.connect(websocket)
 
@@ -280,12 +275,14 @@ async def read_power_supply_and_insert() -> None:
 
 
 @app.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=5, raise_exceptions=True)
 def insert_fake_power_supply_data() -> None:
-
+    print("inside insert_fake_power_supply routine")
     if ps is not None:
+        print("ps is none")
         return
 
+    print("creating new voltage measurements")
     new_measurement: MeasurementCreate = MeasurementCreate(
         i_measurement_type=1,
         i_device_id=1,
@@ -298,6 +295,7 @@ def insert_fake_power_supply_data() -> None:
 
     logging_database.insert_measurement(new_measurement)
 
+    print("creating new current measurement")
     new_measurement = MeasurementCreate(
         i_measurement_type=2,
         i_device_id=1,
