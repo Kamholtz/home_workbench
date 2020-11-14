@@ -302,7 +302,6 @@ def insert_fake_power_supply_data() -> None:
         ),
     )
 
-    print("db from depends: " + str(db))
     logging_database.insert_measurement(db, new_measurement)
 
     print("creating new current measurement")

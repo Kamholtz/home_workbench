@@ -202,7 +202,7 @@ PowerSupplyChart.prototype.Bind = function () {
 	var thisRef = this;
 	thisRef.chart = new Chart(thisRef.ctx, thisRef.config);
 
-	const ws = new WebSocket("ws://locahost:5000/api/measurements");
+	const ws = new WebSocket("ws://localhost:5000/api/measurements");
 	ws.onmessage = function (event) {
 		const measurements = JSON.parse(event.data);
 
