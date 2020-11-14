@@ -53,14 +53,14 @@ def test_measurements_get_all_measurements() -> None:
 def test_measurements_get_measurements_in_last_timedelta() -> None:
     db = LoggingDatabase()
     measurements: List[Measurement] = db.get_measurements_in_last_timedelta(
-        period=timedelta(minutes=60), device_id=1
+        db, period=timedelta(minutes=60), device_id=1
     )
 
     assert len(measurements) > 0
 
 
-def test_get_by_query() -> None:
-    db = LoggingDatabase()
-    result = db.get_by_query("public.measurements")
+# def test_get_by_query() -> None:
+#     db = LoggingDatabase()
+#     result = db.get_by_query("public.measurements")
 
-    assert len(result) > 0
+#     assert len(result) > 0

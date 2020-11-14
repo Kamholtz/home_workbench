@@ -6,7 +6,7 @@ import uvicorn
 from crud.measurement import LoggingDatabase
 from db.spd3303c import SPD3303C, SPD3303CChannel
 from db.workbench_helper import WorkbenchHelper
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -15,6 +15,19 @@ from models.measurement import Measurement
 from schemas.measurement import MeasurementCreate
 from websockets import ConnectionClosed, ConnectionClosedError, ConnectionClosedOK
 from workbench_web_helper import WorkbenchWebHelper
+
+from sqlalchemy.orm import Session
+
+from db.database import SessionLocal, engine, Base
+Base.metadata.create_all(bind=engine)
+
+#dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # from fastapi.templating import Jinja2Templates
 # https://github.com/encode/uvicorn/issues/358
@@ -40,17 +53,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# templates_path = get_path_relative_to_this_module("templates")
-# templates = Jinja2Templates(directory=templates_path)
-
-
 ps: Optional[SPD3303C] = WorkbenchWebHelper.get_power_supply()
 logging_database: LoggingDatabase = LoggingDatabase()
 
 
-
 @app.post("/api/measurements")
-async def create_measurement(measurement: MeasurementCreate) -> Measurement:
+async def create_measurement(measurement: MeasurementCreate, db: Session = Depends(get_db)) -> Measurement:
 
     global solar_measurements_manager
 
@@ -69,7 +77,7 @@ async def create_measurement(measurement: MeasurementCreate) -> Measurement:
     ]
     solar_measurements_manager.broadcast_json(payload)
 
-    return logging_database.insert_measurement(measurement)
+    return logging_database.insert_measurement(db, measurement)
 
 
 class ConnectionManager:
@@ -131,12 +139,12 @@ async def channel_status_endpoint(websocket: WebSocket):
 
 
 @app.websocket("/api/solarmeasurements")
-async def solar_measurement_endpoint(websocket: WebSocket):
+async def solar_measurement_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
     await solar_measurements_manager.connect(websocket)
 
     # Get recent measurements
     latest_measurements: List[Measurement] = logging_database.get_measurements_limit(
-        2, 20
+        db, 2, 20
     )
 
     # Send the recent measurements
@@ -169,7 +177,7 @@ async def solar_measurement_endpoint(websocket: WebSocket):
 
 
 @app.websocket("/api/measurements")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
     await measurements_manager.connect(websocket)
 
     last_update_time = datetime.now() - timedelta(minutes=30)
@@ -177,7 +185,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             latest_measurements: List[
                 Measurement
-            ] = logging_database.get_measurements_since_date(last_update_time, 1)
+            ] = logging_database.get_measurements_since_date(db, last_update_time, 1)
 
             if latest_measurements:
                 payload = [
@@ -206,7 +214,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.on_event("startup")
 @repeat_every(seconds=3, raise_exceptions=True)
-async def read_power_supply_and_insert() -> None:
+async def read_power_supply_and_insert(db: Session = Depends(get_db)) -> None:
     global ps
     global LAST_STATUS_PAYLOAD, LAST_STATUS, LAST_SOURCE_CURRENTS, LAST_SOURCE_VOLTAGES
     global channel_status_manager
@@ -262,7 +270,7 @@ async def read_power_supply_and_insert() -> None:
             i_value=c.voltage,
             d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
         )
-        logging_database.insert_measurement(meas)
+        logging_database.insert_measurement(db, meas)
 
         meas = MeasurementCreate(
             i_device_id=1,
@@ -271,12 +279,13 @@ async def read_power_supply_and_insert() -> None:
             i_value=c.current,
             d_datetime=WorkbenchHelper.get_datetime_now_to_nearest_sec(),
         )
-        logging_database.insert_measurement(meas)
+        logging_database.insert_measurement(db, meas)
 
 
 @app.on_event("startup")
 @repeat_every(seconds=5, raise_exceptions=True)
 def insert_fake_power_supply_data() -> None:
+    db = SessionLocal()
     print("inside insert_fake_power_supply routine")
     if ps is not None:
         print("ps is none")
@@ -293,7 +302,8 @@ def insert_fake_power_supply_data() -> None:
         ),
     )
 
-    logging_database.insert_measurement(new_measurement)
+    print("db from depends: " + str(db))
+    logging_database.insert_measurement(db, new_measurement)
 
     print("creating new current measurement")
     new_measurement = MeasurementCreate(
@@ -306,7 +316,7 @@ def insert_fake_power_supply_data() -> None:
         ),
     )
 
-    logging_database.insert_measurement(new_measurement)
+    logging_database.insert_measurement(db, new_measurement)
 
 
 if __name__ == "__main__":
